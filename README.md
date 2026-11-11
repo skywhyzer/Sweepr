@@ -23,6 +23,7 @@ English · [Русский](README.ru.md)
 - **Nothing is deleted blindly** — every leftover is shown with the reason it was found, and you confirm before anything is removed.
 - **Force removal** — for broken or missing uninstallers: skips the uninstaller and removes all traces directly.
 - **Registry backups** — a backup is made before registry cleanup, and you can restore it any time from the built-in backups manager.
+- **Tweaks** — 19 reversible system tweaks (interface, privacy, gaming, updates). The previous value is saved before every change, so you can undo one tweak or all of them in a click, even after a restart; Sweepr also notices when Windows reverts a tweak.
 - **Instant search, filters and sorting** — by name, size or date; `Ctrl+F` / `F3` focuses the search box.
 - **Light and dark themes**, Material You inspired design.
 - **English and Russian** interface.
