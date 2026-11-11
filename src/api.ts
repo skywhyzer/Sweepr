@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { AppInfo, BackupInfo, DeleteReport, Leftover } from "./types";
+import type { AppInfo, BackupInfo, DeleteReport, Leftover, TweakInfo } from "./types";
 
 export const api = {
   isElevated: () => invoke<boolean>("is_elevated"),
@@ -27,6 +27,10 @@ export const api = {
   listBackups: () => invoke<BackupInfo[]>("list_backups"),
   restoreBackup: (id: string) => invoke<number>("restore_backup", { id }),
   deleteBackup: (id: string) => invoke<void>("delete_backup", { id }),
+  listTweaks: () => invoke<TweakInfo[]>("list_tweaks"),
+  setTweak: (id: string, enabled: boolean) => invoke<TweakInfo>("set_tweak", { id, enabled }),
+  resetTweaks: () => invoke<number>("reset_tweaks"),
+  restartExplorer: () => invoke<void>("restart_explorer"),
 };
 
 const iconCache = new Map<string, Promise<string | null>>();

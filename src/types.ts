@@ -42,3 +42,18 @@ export interface BackupInfo {
   created: number;
   entries: string[];
 }
+
+export interface TweakInfo {
+  id: string;
+  category: "interface" | "privacy" | "gaming" | "updates";
+  risk: "low" | "medium";
+  admin: boolean;
+  explorer: boolean;
+  relogin: boolean;
+  enabled: boolean;
+  /** Sweepr changed it and can restore the original value. */
+  managed: boolean;
+  /** Sweepr applied it, but something has since reverted it. */
+  drift: boolean;
+  applied?: number | null;
+}

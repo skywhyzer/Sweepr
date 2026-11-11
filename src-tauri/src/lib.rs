@@ -1,6 +1,7 @@
 mod apps;
 mod icons;
 mod leftovers;
+mod tweaks;
 mod uninstall;
 mod util;
 
@@ -51,6 +52,10 @@ pub fn run() {
             leftovers::list_backups,
             leftovers::restore_backup,
             leftovers::delete_backup,
+            tweaks::list_tweaks,
+            tweaks::set_tweak,
+            tweaks::reset_tweaks,
+            tweaks::restart_explorer,
         ])
         .run(tauri::generate_context!())
         .expect("error while running the application");

@@ -7,6 +7,7 @@ import type { AppInfo } from "./types";
 import { AppIcon, Icon, Spinner } from "./ui";
 import UninstallDialog from "./UninstallDialog";
 import BackupsDialog from "./BackupsDialog";
+import TweaksDialog from "./TweaksDialog";
 
 type Filter = "all" | "win32" | "store";
 type Sort = "name" | "size" | "date";
@@ -28,6 +29,7 @@ export default function App() {
   const [menuFor, setMenuFor] = useState<string | null>(null);
   const [target, setTarget] = useState<{ app: AppInfo; force: boolean } | null>(null);
   const [showBackups, setShowBackups] = useState(false);
+  const [showTweaks, setShowTweaks] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const reload = useCallback(() => {
@@ -141,6 +143,9 @@ export default function App() {
           <div className="actions">
             <button className="icon-btn" title={t("forceFolder")} onClick={forceByFolder}>
               <Icon name="folder_delete" />
+            </button>
+            <button className="icon-btn" title={t("tweaks")} onClick={() => setShowTweaks(true)}>
+              <Icon name="tune" />
             </button>
             <button className="icon-btn" title={t("backups")} onClick={() => setShowBackups(true)}>
               <Icon name="history" />
@@ -279,6 +284,7 @@ export default function App() {
         />
       )}
       {showBackups && <BackupsDialog onClose={() => setShowBackups(false)} />}
+      {showTweaks && <TweaksDialog elevated={elevated} onClose={() => setShowTweaks(false)} />}
     </I18n.Provider>
   );
 }
