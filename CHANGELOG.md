@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0
+## 0.3.0
 
 ### New: reversible system tweaks
 
@@ -10,6 +10,8 @@ The **Tweaks** button (sliders icon) opens 19 switches for Windows settings: int
 - **Undo all my changes** restores everything Sweepr has changed.
 - If Windows reverts a tweak later, Sweepr shows it and offers **Apply again**.
 - Tweaks that write to HKLM are locked without administrator rights; hints say when Explorer must be restarted or you need to sign in again.
+
+## 0.2.0
 
 ### New: disk usage analyzer
 
