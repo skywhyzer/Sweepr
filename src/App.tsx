@@ -8,10 +8,12 @@ import { AppIcon, Icon, Spinner } from "./ui";
 import UninstallDialog from "./UninstallDialog";
 import BackupsDialog from "./BackupsDialog";
 import TweaksDialog from "./TweaksDialog";
+import DiskView from "./DiskView";
 
 type Filter = "all" | "win32" | "store";
 type Sort = "name" | "size" | "date";
 type Theme = "light" | "dark";
+type View = "apps" | "disk";
 
 export default function App() {
   const [lang, setLang] = useState<Lang>(initialLang);
@@ -30,16 +32,32 @@ export default function App() {
   const [target, setTarget] = useState<{ app: AppInfo; force: boolean } | null>(null);
   const [showBackups, setShowBackups] = useState(false);
   const [showTweaks, setShowTweaks] = useState(false);
+  const [view, setView] = useState<View>(() => {
+    try {
+      return localStorage.getItem("view") === "disk" ? "disk" : "apps";
+    } catch {
+      return "apps";
+    }
+  });
   const searchRef = useRef<HTMLInputElement>(null);
 
   const reload = useCallback(() => {
-    api.listWin32().then(setWin32).catch(() => setWin32([]));
-    api.listStore().then(setStore).catch(() => setStore([]));
+    api
+      .listWin32()
+      .then(setWin32)
+      .catch(() => setWin32([]));
+    api
+      .listStore()
+      .then(setStore)
+      .catch(() => setStore([]));
   }, []);
 
   useEffect(() => {
     reload();
-    api.isElevated().then(setElevated).catch(() => {});
+    api
+      .isElevated()
+      .then(setElevated)
+      .catch(() => {});
   }, [reload]);
 
   useEffect(() => {
@@ -47,8 +65,16 @@ export default function App() {
     try {
       localStorage.setItem("theme", theme);
     } catch {}
-    getCurrentWindow().setTheme(theme).catch(() => {});
+    getCurrentWindow()
+      .setTheme(theme)
+      .catch(() => {});
   }, [theme]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("view", view);
+    } catch {}
+  }, [view]);
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -59,7 +85,10 @@ export default function App() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey && e.key.toLowerCase() === "f") || e.key === "F3") {
+      if (
+        document.documentElement.dataset.view !== "disk" &&
+        ((e.ctrlKey && e.key.toLowerCase() === "f") || e.key === "F3")
+      ) {
         e.preventDefault();
         searchRef.current?.focus();
       }
@@ -102,12 +131,18 @@ export default function App() {
   const forceByFolder = async () => {
     const dir = await pickFolder({ directory: true, multiple: false });
     if (typeof dir !== "string") return;
-    const name = dir.replace(/[\\/]+$/, "").split(/[\\/]/).pop() || dir;
+    const name =
+      dir
+        .replace(/[\\/]+$/, "")
+        .split(/[\\/]/)
+        .pop() || dir;
     setTarget({
       app: { id: `folder:${dir}`, kind: "win32", name, installLocation: dir },
       force: true,
     });
   };
+
+  document.documentElement.dataset.view = view;
 
   const chips: [Filter, string][] = [
     ["all", t("all")],
@@ -125,34 +160,60 @@ export default function App() {
             </div>
             <span>Sweepr</span>
           </div>
-          <label className="search">
-            <Icon name="search" />
-            <input
-              ref={searchRef}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t("search")}
-              spellCheck={false}
-            />
-            {query && (
-              <button className="icon-btn small" onClick={() => setQuery("")} aria-label={t("close")}>
-                <Icon name="close" />
-              </button>
-            )}
-          </label>
+          <div className="seg views">
+            <button className={view === "apps" ? "on" : ""} onClick={() => setView("apps")}>
+              <Icon name="apps" />
+              {t("viewApps")}
+            </button>
+            <button className={view === "disk" ? "on" : ""} onClick={() => setView("disk")}>
+              <Icon name="donut_large" />
+              {t("viewDisk")}
+            </button>
+          </div>
+          {view === "disk" ? (
+            <div className="spacer" />
+          ) : (
+            <label className="search">
+              <Icon name="search" />
+              <input
+                ref={searchRef}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={t("search")}
+                spellCheck={false}
+              />
+              {query && (
+                <button
+                  className="icon-btn small"
+                  onClick={() => setQuery("")}
+                  aria-label={t("close")}
+                >
+                  <Icon name="close" />
+                </button>
+              )}
+            </label>
+          )}
           <div className="actions">
-            <button className="icon-btn" title={t("forceFolder")} onClick={forceByFolder}>
-              <Icon name="folder_delete" />
-            </button>
-            <button className="icon-btn" title={t("tweaks")} onClick={() => setShowTweaks(true)}>
-              <Icon name="tune" />
-            </button>
-            <button className="icon-btn" title={t("backups")} onClick={() => setShowBackups(true)}>
-              <Icon name="history" />
-            </button>
-            <button className="icon-btn" title={t("refresh")} onClick={reload}>
-              <Icon name="refresh" />
-            </button>
+            {view === "apps" && (
+              <>
+                <button className="icon-btn" title={t("forceFolder")} onClick={forceByFolder}>
+                  <Icon name="folder_delete" />
+                </button>
+                <button className="icon-btn" title={t("tweaks")} onClick={() => setShowTweaks(true)}>
+                  <Icon name="tune" />
+                </button>
+                <button
+                  className="icon-btn"
+                  title={t("backups")}
+                  onClick={() => setShowBackups(true)}
+                >
+                  <Icon name="history" />
+                </button>
+                <button className="icon-btn" title={t("refresh")} onClick={reload}>
+                  <Icon name="refresh" />
+                </button>
+              </>
+            )}
             <button
               className="icon-btn"
               title={t("langToggle")}
@@ -180,97 +241,108 @@ export default function App() {
           </div>
         )}
 
-        <div className="toolbar">
-          <div className="chips">
-            {chips.map(([id, label]) => (
-              <button
-                key={id}
-                className={`chip ${filter === id ? "selected" : ""}`}
-                onClick={() => setFilter(id)}
-              >
-                {filter === id && <Icon name="check" />}
-                {label}
-              </button>
-            ))}
-          </div>
-          <div className="summary">
-            {!loading && (
-              <span>
-                {t("count", { n: visible.length })}
-                {totalSize > 0 && ` · ${t("totalSize", { size: formatSize(totalSize, lang) })}`}
-              </span>
-            )}
-            <select value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
-              <option value="name">{t("sortName")}</option>
-              <option value="size">{t("sortSize")}</option>
-              <option value="date">{t("sortDate")}</option>
-            </select>
-          </div>
+        <div className={view === "disk" ? "view-host" : "hidden"}>
+          <DiskView dark={theme === "dark"} />
         </div>
 
-        <main className="list">
-          {loading ? (
-            <div className="state">
-              <Spinner />
-              <p>{t("loading")}</p>
-            </div>
-          ) : visible.length === 0 ? (
-            <div className="state">
-              <Icon name="search_off" className="big" />
-              <p>{t("empty")}</p>
-            </div>
-          ) : (
-            visible.map((app) => (
-              <div
-                key={app.id}
-                className={`row ${menuFor === app.id ? "menu-open" : ""}`}
-                onDoubleClick={() => setTarget({ app, force: false })}
-              >
-                <AppIcon app={app} />
-                <div className="row-main">
-                  <div className="row-name">{app.name}</div>
-                  <div className="row-sub">
-                    {[app.publisher, app.version, app.kind === "store" ? t("storeApp") : null]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </div>
-                </div>
-                <div className="row-meta">
-                  <span>{formatSize(app.sizeBytes, lang)}</span>
-                  <span className="dim">{formatDate(app.installDate, lang)}</span>
-                </div>
-                <div className="row-actions">
-                  <button className="btn tonal" onClick={() => setTarget({ app, force: false })}>
-                    {t("uninstall")}
+        {view === "apps" && (
+          <>
+            <div className="toolbar">
+              <div className="chips">
+                {chips.map(([id, label]) => (
+                  <button
+                    key={id}
+                    className={`chip ${filter === id ? "selected" : ""}`}
+                    onClick={() => setFilter(id)}
+                  >
+                    {filter === id && <Icon name="check" />}
+                    {label}
                   </button>
-                  {app.kind !== "win32" ? (
-                    <span style={{ width: 32, flex: "none" }} />
-                  ) : (
-                    <div className="menu-anchor">
+                ))}
+              </div>
+              <div className="summary">
+                {!loading && (
+                  <span>
+                    {t("count", { n: visible.length })}
+                    {totalSize > 0 && ` · ${t("totalSize", { size: formatSize(totalSize, lang) })}`}
+                  </span>
+                )}
+                <select value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
+                  <option value="name">{t("sortName")}</option>
+                  <option value="size">{t("sortSize")}</option>
+                  <option value="date">{t("sortDate")}</option>
+                </select>
+              </div>
+            </div>
+
+            <main className="list">
+              {loading ? (
+                <div className="state">
+                  <Spinner />
+                  <p>{t("loading")}</p>
+                </div>
+              ) : visible.length === 0 ? (
+                <div className="state">
+                  <Icon name="search_off" className="big" />
+                  <p>{t("empty")}</p>
+                </div>
+              ) : (
+                visible.map((app) => (
+                  <div
+                    key={app.id}
+                    className={`row ${menuFor === app.id ? "menu-open" : ""}`}
+                    onDoubleClick={() => setTarget({ app, force: false })}
+                  >
+                    <AppIcon app={app} />
+                    <div className="row-main">
+                      <div className="row-name">{app.name}</div>
+                      <div className="row-sub">
+                        {[app.publisher, app.version, app.kind === "store" ? t("storeApp") : null]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </div>
+                    </div>
+                    <div className="row-meta">
+                      <span>{formatSize(app.sizeBytes, lang)}</span>
+                      <span className="dim">{formatDate(app.installDate, lang)}</span>
+                    </div>
+                    <div className="row-actions">
                       <button
-                        className="icon-btn small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setMenuFor(menuFor === app.id ? null : app.id);
-                        }}
+                        className="btn tonal"
+                        onClick={() => setTarget({ app, force: false })}
                       >
-                        <Icon name="more_vert" />
+                        {t("uninstall")}
                       </button>
-                      {menuFor === app.id && (
-                        <div className="menu">
-                          <button onClick={() => setTarget({ app, force: true })}>
-                            <Icon name="bolt" />
-                            {t("forceRemove")}
+                      {app.kind !== "win32" ? (
+                        <span style={{ width: 32, flex: "none" }} />
+                      ) : (
+                        <div className="menu-anchor">
+                          <button
+                            className="icon-btn small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setMenuFor(menuFor === app.id ? null : app.id);
+                            }}
+                          >
+                            <Icon name="more_vert" />
                           </button>
+                          {menuFor === app.id && (
+                            <div className="menu">
+                              <button onClick={() => setTarget({ app, force: true })}>
+                                <Icon name="bolt" />
+                                {t("forceRemove")}
+                              </button>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
-        </main>
+                  </div>
+                ))
+              )}
+            </main>
+          </>
+        )}
       </div>
 
       {target && (

@@ -57,3 +57,65 @@ export interface TweakInfo {
   drift: boolean;
   applied?: number | null;
 }
+
+export interface Drive {
+  path: string;
+  label: string;
+  kind: "fixed" | "removable" | "network" | "cdrom" | "ram";
+  total: number;
+  free: number;
+}
+
+/** 0 = folder, 1 = file, 2 = small files folded together */
+export type DiskKind = 0 | 1 | 2;
+
+export interface DiskItem {
+  id: number;
+  name: string;
+  size: number;
+  files: number;
+  kind: DiskKind;
+  ext: string;
+  /** Unix time, seconds */
+  modified: number;
+  hasChildren: boolean;
+}
+
+export interface ExtStat {
+  ext: string;
+  count: number;
+  bytes: number;
+}
+
+/** Treemap node: id, name, size, kind, extension, children. */
+export interface MapNode {
+  id: number;
+  n: string;
+  s: number;
+  k: DiskKind;
+  e: string;
+  c?: MapNode[];
+}
+
+export interface ScanResult {
+  root: DiskItem;
+  path: string;
+  errors: number;
+  cancelled: boolean;
+  seconds: number;
+  free: number | null;
+  total: number | null;
+}
+
+export interface ScanProgress {
+  files: number;
+  dirs: number;
+  bytes: number;
+  current: string;
+}
+
+export interface DiskDeleteResult {
+  deleted: number;
+  freed: number;
+  failed: { path: string; error: string }[];
+}
