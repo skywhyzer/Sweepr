@@ -1,0 +1,75 @@
+name: Release
+
+# Builds the Windows installer and publishes it as a GitHub release
+# "v<version>" (version from src-tauri/tauri.conf.json). Runs when main
+# changes, when a v* tag is pushed, or by hand. If a release for the
+# current version already exists, nothing is built.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check whether this version is already released
+        id: check
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version=$(node -p "require('./src-tauri/tauri.conf.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if gh release view "v$version" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release v$version already exists, skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.skip != 'true'
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        if: steps.check.outputs.skip != 'true'
+
+      - uses: swatinem/rust-cache@v2
+        if: steps.check.outputs.skip != 'true'
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+        if: steps.check.outputs.skip != 'true'
+
+      - run: npm run build
+        if: steps.check.outputs.skip != 'true'
+
+      - name: Test disk scanner
+        if: steps.check.outputs.skip != 'true'
+        run: cargo test --manifest-path src-tauri/Cargo.toml --lib disktree
+
+      - uses: tauri-apps/tauri-action@v0
+        if: steps.check.outputs.skip != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__
+          releaseName: Sweepr v__VERSION__
+          releaseBody: |
+            What's new: see the [changelog](https://github.com/${{ github.repository }}/blob/v__VERSION__/CHANGELOG.md).
+
+            Download **Sweepr___VERSION___x64-setup.exe** below and run it.
+          releaseDraft: false
+          prerelease: false

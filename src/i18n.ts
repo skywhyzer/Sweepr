@@ -68,8 +68,7 @@ const ru = {
     "Штатный деинсталлятор завершился с ошибкой (код {code}), и программа осталась в системе.",
   stuckQuiet:
     "Штатный деинсталлятор закрылся, но программа осталась в системе. Возможно, удаление было отменено или деинсталлятор повреждён.",
-  stuckMissing:
-    "У этой программы нет рабочего деинсталлятора — его файл отсутствует на диске.",
+  stuckMissing: "У этой программы нет рабочего деинсталлятора — его файл отсутствует на диске.",
   stuckHint:
     "Принудительное удаление найдёт файлы и записи программы и покажет их вам перед удалением.",
   stuckWatching:
@@ -121,6 +120,47 @@ const ru = {
   reason_autostart: "Автозапуск",
   reason_appPath: "Путь приложения",
   reason_appData: "Данные приложения",
+
+  viewApps: "Программы",
+  viewDisk: "Диск",
+  diskTitle: "Что занимает место?",
+  diskText:
+    "Выберите диск или папку — Sweepr покажет, какие папки, файлы и типы файлов занимают больше всего места.",
+  diskFree: "свободно {free} из {total}",
+  diskPickFolder: "Выбрать папку…",
+  diskScanning: "Сканируем {path}",
+  diskStats: "Файлов: {files} · папок: {dirs} · {size}",
+  diskStop: "Остановить",
+  diskNew: "Другой диск или папка",
+  diskRescan: "Пересканировать",
+  diskSummary: "{size} · файлов: {files} · за {sec} с",
+  diskPartial: "Сканирование остановлено — данные неполные",
+  diskErrors: "Нет доступа к папкам: {n}",
+  diskColName: "Имя",
+  diskColShare: "Доля",
+  diskColSize: "Размер",
+  diskColFiles: "Файлы",
+  diskColModified: "Изменён",
+  diskOther: "Мелкие файлы ({n})",
+  diskTypes: "Типы файлов",
+  diskTop: "Крупные файлы",
+  diskNoExt: "без расширения",
+  diskOpen: "Открыть",
+  diskReveal: "Показать в проводнике",
+  diskCopy: "Копировать путь",
+  diskCopied: "Путь скопирован",
+  diskTrash: "В корзину",
+  diskDeleteForever: "Удалить навсегда",
+  diskZoomIn: "Двойной щелчок — увеличить",
+  diskZoomOut: "Уровнем выше",
+  diskConfirmTitle: "Удалить «{name}»?",
+  diskConfirmTrash: "{size} будет перемещено в корзину.",
+  diskConfirmForever: "{size} будет удалено безвозвратно. Отменить это действие нельзя.",
+  diskDeleted: "Освобождено {size}",
+  diskDeleteFailed: "Не удалось удалить: {error}",
+  diskFreeSpace: "Свободно",
+  diskHint: "Дважды щёлкните блок на карте, чтобы приблизить папку. Del — удалить выбранное.",
+  diskSelectHint: "Выберите папку или файл в списке или на карте",
 };
 
 const en: typeof ru = {
@@ -241,6 +281,47 @@ const en: typeof ru = {
   reason_autostart: "Autostart",
   reason_appPath: "App path",
   reason_appData: "App data",
+
+  viewApps: "Programs",
+  viewDisk: "Disk",
+  diskTitle: "What is taking up space?",
+  diskText:
+    "Choose a drive or folder — Sweepr shows which folders, files and file types use the most space.",
+  diskFree: "{free} free of {total}",
+  diskPickFolder: "Choose a folder…",
+  diskScanning: "Scanning {path}",
+  diskStats: "{files} files · {dirs} folders · {size}",
+  diskStop: "Stop",
+  diskNew: "Another drive or folder",
+  diskRescan: "Rescan",
+  diskSummary: "{size} · {files} files · in {sec} s",
+  diskPartial: "The scan was stopped — the data is incomplete",
+  diskErrors: "Folders without access: {n}",
+  diskColName: "Name",
+  diskColShare: "Share",
+  diskColSize: "Size",
+  diskColFiles: "Files",
+  diskColModified: "Modified",
+  diskOther: "Small files ({n})",
+  diskTypes: "File types",
+  diskTop: "Largest files",
+  diskNoExt: "no extension",
+  diskOpen: "Open",
+  diskReveal: "Show in Explorer",
+  diskCopy: "Copy path",
+  diskCopied: "Path copied",
+  diskTrash: "Move to Recycle Bin",
+  diskDeleteForever: "Delete permanently",
+  diskZoomIn: "Double-click to zoom in",
+  diskZoomOut: "Up one level",
+  diskConfirmTitle: "Delete “{name}”?",
+  diskConfirmTrash: "{size} will be moved to the Recycle Bin.",
+  diskConfirmForever: "{size} will be deleted permanently. This cannot be undone.",
+  diskDeleted: "{size} freed",
+  diskDeleteFailed: "Could not delete: {error}",
+  diskFreeSpace: "Free",
+  diskHint: "Double-click a block on the map to zoom into a folder. Del deletes the selection.",
+  diskSelectHint: "Select a folder or file in the list or on the map",
 };
 
 export type Key = keyof typeof ru;
@@ -271,7 +352,7 @@ export const useI18n = () => useContext(I18n);
 
 export function formatSize(bytes: number | null | undefined, lang: Lang): string {
   if (!bytes) return "";
-  const units = lang === "ru" ? ["Б", "КБ", "МБ", "ГБ"] : ["B", "KB", "MB", "GB"];
+  const units = lang === "ru" ? ["Б", "КБ", "МБ", "ГБ", "ТБ"] : ["B", "KB", "MB", "GB", "TB"];
   let v = bytes;
   let i = 0;
   while (v >= 1024 && i < units.length - 1) {

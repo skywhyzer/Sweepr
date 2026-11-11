@@ -1,5 +1,16 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { AppInfo, BackupInfo, DeleteReport, Leftover } from "./types";
+import type {
+  AppInfo,
+  BackupInfo,
+  DeleteReport,
+  DiskDeleteResult,
+  DiskItem,
+  Drive,
+  ExtStat,
+  Leftover,
+  MapNode,
+  ScanResult,
+} from "./types";
 
 export const api = {
   isElevated: () => invoke<boolean>("is_elevated"),
@@ -27,6 +38,23 @@ export const api = {
   listBackups: () => invoke<BackupInfo[]>("list_backups"),
   restoreBackup: (id: string) => invoke<number>("restore_backup", { id }),
   deleteBackup: (id: string) => invoke<void>("delete_backup", { id }),
+
+  diskDrives: () => invoke<Drive[]>("disk_drives"),
+  diskScan: (path: string) => invoke<ScanResult>("disk_scan", { path }),
+  diskCancel: () => invoke<void>("disk_cancel"),
+  diskClose: () => invoke<void>("disk_close"),
+  diskItem: (id: number) => invoke<DiskItem | null>("disk_item", { id }),
+  diskChildren: (id: number) => invoke<DiskItem[]>("disk_children", { id }),
+  diskAncestry: (id: number) => invoke<DiskItem[]>("disk_ancestry", { id }),
+  diskExtStats: (id: number) => invoke<ExtStat[]>("disk_ext_stats", { id }),
+  diskTopFiles: (id: number, count: number) => invoke<DiskItem[]>("disk_top_files", { id, count }),
+  diskTreemap: (id: number, depth: number, minFrac: number) =>
+    invoke<MapNode | null>("disk_treemap", { id, depth, minFrac }),
+  diskPath: (id: number) => invoke<string | null>("disk_path", { id }),
+  diskReveal: (id: number) => invoke<void>("disk_reveal", { id }),
+  diskOpen: (id: number) => invoke<void>("disk_open", { id }),
+  diskDelete: (ids: number[], permanent: boolean) =>
+    invoke<DiskDeleteResult>("disk_delete", { ids, permanent }),
 };
 
 const iconCache = new Map<string, Promise<string | null>>();

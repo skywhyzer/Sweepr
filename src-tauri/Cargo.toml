@@ -1,6 +1,6 @@
 [package]
 name = "sweepr"
-version = "0.1.0"
+version = "0.2.0"
 description = "Modern uninstaller for Windows"
 edition = "2021"
 
@@ -24,6 +24,7 @@ windows = { version = "0.61", features = [
   "Win32_Foundation",
   "Win32_Graphics_Gdi",
   "Win32_Security",
+  "Win32_Storage_FileSystem",
   "Win32_System_JobObjects",
   "Win32_UI_Shell",
   "Win32_UI_WindowsAndMessaging",
