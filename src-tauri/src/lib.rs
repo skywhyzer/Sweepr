@@ -1,4 +1,6 @@
 mod apps;
+mod disk;
+mod disktree;
 mod icons;
 mod leftovers;
 mod uninstall;
@@ -38,6 +40,7 @@ fn restart_as_admin(app: tauri::AppHandle) -> Result<(), String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .manage(disk::DiskState::default())
         .invoke_handler(tauri::generate_handler![
             is_elevated,
             restart_as_admin,
@@ -51,6 +54,20 @@ pub fn run() {
             leftovers::list_backups,
             leftovers::restore_backup,
             leftovers::delete_backup,
+            disk::disk_drives,
+            disk::disk_scan,
+            disk::disk_cancel,
+            disk::disk_close,
+            disk::disk_item,
+            disk::disk_children,
+            disk::disk_ancestry,
+            disk::disk_ext_stats,
+            disk::disk_top_files,
+            disk::disk_treemap,
+            disk::disk_path,
+            disk::disk_reveal,
+            disk::disk_open,
+            disk::disk_delete,
         ])
         .run(tauri::generate_context!())
         .expect("error while running the application");

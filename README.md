@@ -23,6 +23,7 @@ English · [Русский](README.ru.md)
 - **Nothing is deleted blindly** — every leftover is shown with the reason it was found, and you confirm before anything is removed.
 - **Force removal** — for broken or missing uninstallers: skips the uninstaller and removes all traces directly.
 - **Registry backups** — a backup is made before registry cleanup, and you can restore it any time from the built-in backups manager.
+- **Disk usage analyzer (new in 0.2)** — a WinDirStat-style view: scan a drive or folder and see what takes up space as a sortable folder tree with share bars, a colored treemap (squarified, with cushion shading and zoom) and statistics by file type. Largest files list, open / show in Explorer, move to the Recycle Bin or delete permanently right from the view.
 - **Instant search, filters and sorting** — by name, size or date; `Ctrl+F` / `F3` focuses the search box.
 - **Light and dark themes**, Material You inspired design.
 - **English and Russian** interface.
