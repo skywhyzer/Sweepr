@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 import { useI18n, type Key } from "./i18n";
 import type { StartupItem } from "./types";
-import { Icon, Spinner } from "./ui";
+import { Icon, Skeleton } from "./ui";
 
 type Filter = "all" | "on" | "off" | "broken";
 
@@ -152,10 +152,7 @@ export default function StartupPage({
 
       <div className="page-scroll">
         {list === null ? (
-          <div className="progress">
-            <Spinner />
-            <p className="dim">{t("startupLoading")}</p>
-          </div>
+          <Skeleton rows={7} label={t("startupLoading")} />
         ) : shown.length === 0 ? (
           <div className="progress dim">
             <Icon name="rocket" className="big" />

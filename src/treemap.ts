@@ -13,30 +13,49 @@ export interface Tile extends Rect {
   leaf: boolean;
 }
 
-/** Colors for the largest file types, WinDirStat style. */
-const PALETTE = [
-  "#3d6ff2",
-  "#e5484d",
-  "#30a46c",
-  "#12a5c9",
-  "#c547c5",
-  "#e6b422",
-  "#f2771c",
-  "#7c5cf5",
-  "#86b51e",
-  "#e85c9a",
-  "#1f9d8b",
-  "#a87447",
+/**
+ * Colours for the largest file types. Two tuned sets: lighter, softer ones on
+ * the dark theme and deeper ones on the light theme, so tiles read as part of
+ * the Fluent UI around them instead of a screen of neon.
+ */
+const PALETTE_DARK = [
+  "#5b8def",
+  "#ee6f73",
+  "#4cc38a",
+  "#3db8d6",
+  "#c47ad8",
+  "#e6bd4d",
+  "#f0994f",
+  "#8f7df2",
+  "#98c94f",
+  "#ec80b2",
+  "#3fbfae",
+  "#b98d66",
+];
+const PALETTE_LIGHT = [
+  "#3b74e8",
+  "#dc4f55",
+  "#2e9e68",
+  "#1b9bbd",
+  "#a85cc0",
+  "#cf9f1f",
+  "#e07b2b",
+  "#6e5ce6",
+  "#74a01c",
+  "#d9588d",
+  "#17917f",
+  "#9a6c45",
 ];
 export const OTHER_EXT_COLOR = "#8b939c";
 export const FOLDER_COLOR = "#6b7480";
 
-export function extColors(exts: string[]): Map<string, string> {
+export function extColors(exts: string[], dark = true): Map<string, string> {
+  const palette = dark ? PALETTE_DARK : PALETTE_LIGHT;
   const m = new Map<string, string>();
   exts
     .filter((e) => e !== "")
-    .slice(0, PALETTE.length)
-    .forEach((e, i) => m.set(e, PALETTE[i]));
+    .slice(0, palette.length)
+    .forEach((e, i) => m.set(e, palette[i]));
   return m;
 }
 
@@ -117,7 +136,11 @@ export interface DrawOpts {
   selected: number | null;
   highlightExt: string | null;
   dark: boolean;
+  /** Formats a byte count for the labels; without it only names are drawn. */
+  format?: (bytes: number) => string;
 }
+
+const FONT = '"Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif';
 
 function tileColor(t: Tile, colors: Map<string, string>): string {
   const n = t.node;
@@ -126,8 +149,31 @@ function tileColor(t: Tile, colors: Map<string, string>): string {
   return FOLDER_COLOR;
 }
 
+function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
+  const r = Math.max(0, Math.min(5, w / 4, h / 4));
+  ctx.beginPath();
+  if (r < 1) ctx.rect(x, y, w, h);
+  else ctx.roundRect(x, y, w, h, r);
+}
+
+/** Shortens text with an ellipsis until it fits. */
+function fit(ctx: CanvasRenderingContext2D, text: string, width: number): string {
+  if (ctx.measureText(text).width <= width) return text;
+  let lo = 0;
+  let hi = text.length;
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2);
+    if (ctx.measureText(text.slice(0, mid) + "…").width <= width) lo = mid;
+    else hi = mid - 1;
+  }
+  return lo > 0 ? text.slice(0, lo) + "…" : "";
+}
+
 export function draw(ctx: CanvasRenderingContext2D, tiles: Tile[], opts: DrawOpts) {
-  const { colors, selected, highlightExt, dark } = opts;
+  const { colors, selected, highlightExt, dark, format } = opts;
+  const GAP = 0.75; // half of the gap between neighbouring tiles
+
+  // 1. Tiles: flat colour, a soft light-to-shade wash and a fine top highlight.
   for (const t of tiles) {
     const n = t.node;
     if (!t.leaf && n.k === 0) {
@@ -136,39 +182,95 @@ export function draw(ctx: CanvasRenderingContext2D, tiles: Tile[], opts: DrawOpt
       ctx.fillRect(t.x, t.y, t.w, t.h);
       continue;
     }
-    const color = tileColor(t, colors);
+    const x = t.x + GAP;
+    const y = t.y + GAP;
+    const w = t.w - GAP * 2;
+    const h = t.h - GAP * 2;
+    if (w <= 0 || h <= 0) continue;
+
     const dim = highlightExt !== null && !(n.k === 1 && n.e === highlightExt);
-    ctx.globalAlpha = dim ? 0.18 : 1;
-    ctx.fillStyle = color;
-    ctx.fillRect(t.x, t.y, t.w, t.h);
-    if (t.w > 3 && t.h > 3) {
-      // Cushion shading: light top-left, darker bottom-right.
-      const g = ctx.createLinearGradient(t.x, t.y, t.x + t.w, t.y + t.h);
-      g.addColorStop(0, "rgba(255,255,255,0.38)");
-      g.addColorStop(0.5, "rgba(255,255,255,0)");
-      g.addColorStop(1, "rgba(0,0,0,0.32)");
+    ctx.globalAlpha = dim ? 0.16 : 1;
+    ctx.fillStyle = tileColor(t, colors);
+    roundedRect(ctx, x, y, w, h);
+    ctx.fill();
+    if (w > 4 && h > 4) {
+      const g = ctx.createLinearGradient(x, y, x, y + h);
+      g.addColorStop(0, "rgba(255,255,255,0.16)");
+      g.addColorStop(0.55, "rgba(255,255,255,0)");
+      g.addColorStop(1, "rgba(0,0,0,0.14)");
       ctx.fillStyle = g;
-      ctx.fillRect(t.x, t.y, t.w, t.h);
+      ctx.fill();
+    }
+    if (w > 10 && h > 10) {
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(255,255,255,0.16)";
+      roundedRect(ctx, x + 0.5, y + 0.5, w - 1, h - 1);
+      ctx.stroke();
     }
     ctx.globalAlpha = 1;
   }
-  // Thin separators between top-level folders give the map structure.
-  ctx.lineWidth = 1;
-  ctx.strokeStyle = dark ? "rgba(0,0,0,0.55)" : "rgba(0,0,0,0.35)";
+
+  // 2. Gutters between folders: cut transparent lines so the surface shows
+  //    through. The nesting level decides the width, which gives the map its
+  //    structure without any dark outlines.
+  ctx.save();
+  ctx.globalCompositeOperation = "destination-out";
+  ctx.strokeStyle = "#000";
   for (const t of tiles) {
-    if (t.depth >= 1 && t.depth <= 2 && t.w > 4 && t.h > 4) {
-      ctx.strokeRect(t.x + 0.5, t.y + 0.5, t.w - 1, t.h - 1);
-    }
+    if (t.node.k !== 0 || t.w < 6 || t.h < 6) continue;
+    if (t.depth === 1) ctx.lineWidth = 4;
+    else if (t.depth === 2) ctx.lineWidth = 2.5;
+    else continue;
+    ctx.strokeRect(t.x, t.y, t.w, t.h);
   }
+  ctx.restore();
+
+  // 3. Labels on tiles big enough to read.
+  ctx.textBaseline = "top";
+  ctx.shadowColor = "rgba(0,0,0,0.38)";
+  ctx.shadowBlur = 2;
+  ctx.shadowOffsetY = 1;
+  for (const t of tiles) {
+    const n = t.node;
+    if (n.k !== 1 || t.w < 68 || t.h < 24) continue;
+    if (highlightExt !== null && n.e !== highlightExt) continue;
+    const pad = 7;
+    const room = t.w - pad * 2;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(t.x + 2, t.y + 2, t.w - 4, t.h - 4);
+    ctx.clip();
+    ctx.fillStyle = "rgba(255,255,255,0.96)";
+    ctx.font = `600 12px ${FONT}`;
+    const name = fit(ctx, n.n, room);
+    if (name) ctx.fillText(name, t.x + pad, t.y + 6);
+    if (format && t.h >= 42) {
+      ctx.fillStyle = "rgba(255,255,255,0.8)";
+      ctx.font = `400 11px ${FONT}`;
+      ctx.fillText(format(n.s), t.x + pad, t.y + 22);
+    }
+    ctx.restore();
+  }
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+
+  // 4. Selection: a bright ring with a dark halo so it shows on any colour.
   if (selected !== null) {
     const s = tiles.find((t) => t.node.id === selected);
-    if (s) {
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = "#000";
-      ctx.strokeRect(s.x + 1.5, s.y + 1.5, Math.max(0, s.w - 3), Math.max(0, s.h - 3));
-      ctx.lineWidth = 1.5;
+    if (s && s.w > 3 && s.h > 3) {
+      const x = s.x + GAP;
+      const y = s.y + GAP;
+      const w = s.w - GAP * 2;
+      const h = s.h - GAP * 2;
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = dark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.35)";
+      roundedRect(ctx, x + 1, y + 1, Math.max(0, w - 2), Math.max(0, h - 2));
+      ctx.stroke();
+      ctx.lineWidth = 2;
       ctx.strokeStyle = "#fff";
-      ctx.strokeRect(s.x + 1.5, s.y + 1.5, Math.max(0, s.w - 3), Math.max(0, s.h - 3));
+      roundedRect(ctx, x + 1, y + 1, Math.max(0, w - 2), Math.max(0, h - 2));
+      ctx.stroke();
     }
   }
 }

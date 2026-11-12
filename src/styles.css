@@ -2580,3 +2580,112 @@ pre.output {
 .progress p.dim {
   color: var(--text-3);
 }
+
+/* ---------------------------------------------------------- skeleton */
+
+.skeleton {
+  max-width: 1000px;
+}
+
+.skeleton.app {
+  max-width: none;
+}
+
+.sk-label {
+  margin: 0 0 10px;
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.sk {
+  display: block;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--text) 9%, transparent);
+  background-image: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in srgb, var(--text) 10%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  animation: sk-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes sk-shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+.sk-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 68px;
+  margin-bottom: 4px;
+  padding: 12px 16px;
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+
+.skeleton.app .sk-row {
+  min-height: 52px;
+  padding: 0 12px;
+  margin-bottom: 2px;
+  border-color: transparent;
+  background: transparent;
+}
+
+.sk-avatar {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--radius);
+}
+
+.sk-lines {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sk-line {
+  height: 12px;
+}
+
+.sk-line.thin {
+  height: 9px;
+  opacity: 0.7;
+}
+
+.sk-end {
+  width: 40px;
+  height: 20px;
+  flex: none;
+  border-radius: 10px;
+}
+
+.skeleton.app .sk-end {
+  width: 56px;
+  height: 10px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk {
+    animation: none;
+    background-image: none;
+  }
+}
+
+.menu button.danger-item,
+.menu button.danger-item .icon {
+  color: var(--danger);
+}

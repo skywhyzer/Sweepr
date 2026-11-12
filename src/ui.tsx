@@ -54,6 +54,7 @@ import i_usb_stick from "@fluentui/svg-icons/icons/usb_stick_20_regular.svg?raw"
 import i_warning from "@fluentui/svg-icons/icons/warning_20_regular.svg?raw";
 import i_weather_moon from "@fluentui/svg-icons/icons/weather_moon_20_regular.svg?raw";
 import i_weather_sunny from "@fluentui/svg-icons/icons/weather_sunny_20_regular.svg?raw";
+import i_zoom_in from "@fluentui/svg-icons/icons/zoom_in_20_regular.svg?raw";
 import i_zoom_out from "@fluentui/svg-icons/icons/zoom_out_20_regular.svg?raw";
 
 /**
@@ -115,6 +116,7 @@ const ICONS: Record<string, string> = {
   undo: i_arrow_undo,
   usb: i_usb_stick,
   warning: i_warning,
+  zoom_in: i_zoom_in,
   zoom_out: i_zoom_out,
 };
 
@@ -156,6 +158,37 @@ export function AppIcon({ app }: { app: AppInfo }) {
   return (
     <div className="app-icon avatar" style={{ ["--hue" as string]: hue }}>
       {letter}
+    </div>
+  );
+}
+
+/**
+ * Grey placeholder rows shown while a page loads: they have the shape of the
+ * content that is about to appear, so the layout doesn't jump and the page
+ * never looks empty or broken.
+ */
+export function Skeleton({
+  rows = 6,
+  variant = "card",
+  label,
+}: {
+  rows?: number;
+  variant?: "card" | "app";
+  label?: string;
+}) {
+  return (
+    <div className={`skeleton ${variant}`} aria-busy="true" role="progressbar" aria-label={label}>
+      {label && <p className="sk-label">{label}</p>}
+      {Array.from({ length: rows }, (_, i) => (
+        <div className="sk-row" key={i}>
+          <span className="sk sk-avatar" />
+          <span className="sk-lines">
+            <span className="sk sk-line" style={{ width: `${38 + ((i * 17) % 30)}%` }} />
+            <span className="sk sk-line thin" style={{ width: `${22 + ((i * 29) % 36)}%` }} />
+          </span>
+          <span className="sk sk-end" />
+        </div>
+      ))}
     </div>
   );
 }

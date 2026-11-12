@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 import { useI18n, type Key } from "./i18n";
 import type { TweakInfo } from "./types";
-import { Icon, Spinner } from "./ui";
+import { Icon, Skeleton } from "./ui";
 import { safetyRestorePoint } from "./prefs";
 
 const CATEGORIES: TweakInfo["category"][] = [
@@ -141,9 +141,7 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
         {note && <div className="tweak-note">{note}</div>}
 
         {list === null ? (
-          <div className="progress">
-            <Spinner />
-          </div>
+          <Skeleton rows={5} />
         ) : found && found.length === 0 ? (
           <div className="progress dim">
             <Icon name="search_off" className="big" />

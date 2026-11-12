@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "./api";
 import { useI18n, type Key } from "./i18n";
 import type { RepairResult, RestoreStatus } from "./types";
-import { Icon, Spinner } from "./ui";
+import { Icon, Skeleton, Spinner } from "./ui";
 import BackupsSection from "./BackupsSection";
 
 type Tab = "points" | "registry" | "repair";
@@ -152,9 +152,7 @@ function Points({ elevated, onRestartAdmin }: { elevated: boolean; onRestartAdmi
         )}
         <p className="tweak-note">{t("rpHint")}</p>
         {status === null ? (
-          <div className="progress">
-            <Spinner />
-          </div>
+          <Skeleton rows={5} />
         ) : status.points.length === 0 ? (
           <div className="progress dim">
             <Icon name="history" className="big" />

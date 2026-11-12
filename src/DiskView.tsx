@@ -60,6 +60,7 @@ export default function DiskView({ dark }: { dark: boolean }) {
   const [confirm, setConfirm] = useState<{ item: DiskItem; permanent: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<{ text: string; error?: boolean } | null>(null);
+  const [ctx, setCtx] = useState<{ x: number; y: number; item: DiskItem } | null>(null);
 
   const loadDrives = useCallback(() => {
     api
@@ -162,7 +163,7 @@ export default function DiskView({ dark }: { dark: boolean }) {
     };
   }, [phase, zoom, version]);
 
-  const colors = useMemo(() => extColors(exts.map((e) => e.ext)), [exts]);
+  const colors = useMemo(() => extColors(exts.map((e) => e.ext), dark), [exts, dark]);
   const totalBytes = root?.size ?? 0;
 
   const rows = useMemo(() => {
@@ -209,6 +210,53 @@ export default function DiskView({ dark }: { dark: boolean }) {
     },
     [kids, loadChildren, selectItem],
   );
+
+  const openCtx = useCallback((item: DiskItem, x: number, y: number) => {
+    if (item.kind === 2) return; // "N small files": nothing to act on
+    const w = 260;
+    const h = 250;
+    setCtx({
+      item,
+      x: Math.max(8, Math.min(x, window.innerWidth - w - 8)),
+      y: y + h > window.innerHeight - 8 ? Math.max(8, y - h) : y,
+    });
+  }, []);
+
+  /** Right click on a map tile: select it, then show the same menu as for a row. */
+  const openCtxById = useCallback(
+    async (id: number, x: number, y: number) => {
+      const item = await api.diskItem(id).catch(() => null);
+      if (!item) return;
+      reveal(id);
+      openCtx(item, x, y);
+    },
+    [reveal, openCtx],
+  );
+
+  useEffect(() => {
+    if (!ctx) return;
+    const close = () => setCtx(null);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    window.addEventListener("click", close);
+    window.addEventListener("blur", close);
+    window.addEventListener("resize", close);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("click", close);
+      window.removeEventListener("blur", close);
+      window.removeEventListener("resize", close);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [ctx]);
+
+  const copyPath = async (item: DiskItem) => {
+    const p = await api.diskPath(item.id).catch(() => null);
+    if (p)
+      navigator.clipboard
+        .writeText(p)
+        .then(() => setToast({ text: t("diskCopied") }))
+        .catch(() => {});
+  };
 
   const doDelete = async () => {
     if (!confirm) return;
@@ -380,6 +428,7 @@ export default function DiskView({ dark }: { dark: boolean }) {
           onToggle={toggle}
           onOpen={(it) => it.kind !== 2 && api.diskOpen(it.id).catch(() => {})}
           onDelete={(it, permanent) => canDelete(it) && setConfirm({ item: it, permanent })}
+          onContext={openCtx}
         />
 
         <aside className="disk-side">
@@ -415,6 +464,11 @@ export default function DiskView({ dark }: { dark: boolean }) {
                     className={`ext-row ${selected?.id === f.id ? "on" : ""}`}
                     onClick={() => reveal(f.id)}
                     onDoubleClick={() => api.diskOpen(f.id).catch(() => {})}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      reveal(f.id);
+                      openCtx(f, e.clientX, e.clientY);
+                    }}
                   >
                     <span
                       className="swatch"
@@ -457,6 +511,7 @@ export default function DiskView({ dark }: { dark: boolean }) {
         size={size}
         onSelect={(id) => reveal(id)}
         onZoom={(id) => setZoom(id)}
+        onContext={openCtxById}
       />
 
       <div className="disk-actions">
@@ -540,6 +595,87 @@ export default function DiskView({ dark }: { dark: boolean }) {
         )}
       </div>
 
+      {ctx && (
+        <div
+          className="menu context"
+          role="menu"
+          style={{ left: ctx.x, top: ctx.y }}
+          onClick={(e) => e.stopPropagation()}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          <button
+            role="menuitem"
+            onClick={() => {
+              setCtx(null);
+              api.diskOpen(ctx.item.id).catch(() => {});
+            }}
+          >
+            <Icon name="open_in_new" />
+            {t("diskOpen")}
+          </button>
+          <button
+            role="menuitem"
+            onClick={() => {
+              setCtx(null);
+              api.diskReveal(ctx.item.id).catch(() => {});
+            }}
+          >
+            <Icon name="folder_open" />
+            {t("diskReveal")}
+          </button>
+          {ctx.item.kind === 0 && ctx.item.hasChildren && (
+            <button
+              role="menuitem"
+              onClick={() => {
+                setCtx(null);
+                setZoom(ctx.item.id);
+              }}
+            >
+              <Icon name="zoom_in" />
+              {t("diskZoomInto")}
+            </button>
+          )}
+          <button
+            role="menuitem"
+            onClick={() => {
+              setCtx(null);
+              copyPath(ctx.item);
+            }}
+          >
+            <Icon name="content_copy" />
+            {t("diskCopy")}
+          </button>
+          {canDelete(ctx.item) && (
+            <>
+              <div className="menu-sep" />
+              <button
+                role="menuitem"
+                onClick={() => {
+                  const item = ctx.item;
+                  setCtx(null);
+                  setConfirm({ item, permanent: false });
+                }}
+              >
+                <Icon name="delete" />
+                {t("diskTrash")}
+              </button>
+              <button
+                role="menuitem"
+                className="danger-item"
+                onClick={() => {
+                  const item = ctx.item;
+                  setCtx(null);
+                  setConfirm({ item, permanent: true });
+                }}
+              >
+                <Icon name="delete_forever" />
+                {t("diskDeleteForever")}
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
       {toast && <div className={`snackbar ${toast.error ? "error" : ""}`}>{toast.text}</div>}
 
       {confirm && (
@@ -593,8 +729,9 @@ function DiskTree(props: {
   onToggle: (it: DiskItem, open?: boolean) => void;
   onOpen: (it: DiskItem) => void;
   onDelete: (it: DiskItem, permanent: boolean) => void;
+  onContext: (it: DiskItem, x: number, y: number) => void;
 }) {
-  const { rows, selected, colors, onSelect, onToggle, onOpen, onDelete } = props;
+  const { rows, selected, colors, onSelect, onToggle, onOpen, onDelete, onContext } = props;
   const { t, lang } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
   const [scroll, setScroll] = useState(0);
@@ -667,6 +804,15 @@ function DiskTree(props: {
       case "Delete":
         if (cur) onDelete(cur.item, e.shiftKey);
         break;
+      case "ContextMenu":
+      case "F10": {
+        if (e.key === "F10" && !e.shiftKey) return;
+        const el = ref.current;
+        if (!cur || !el) return;
+        const box = el.getBoundingClientRect();
+        onContext(cur.item, box.left + 96, box.top + selIndex * ROW_H - el.scrollTop + ROW_H);
+        break;
+      }
       default:
         return;
     }
@@ -713,6 +859,11 @@ function DiskTree(props: {
                 style={{ top: (first + i) * ROW_H }}
                 onMouseDown={() => onSelect(it)}
                 onDoubleClick={() => (it.kind === 0 ? onToggle(it) : onOpen(it))}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  onSelect(it);
+                  onContext(it, e.clientX, e.clientY);
+                }}
               >
                 <span className="c-name" style={{ paddingLeft: r.depth * 16 }}>
                   <span
@@ -778,8 +929,9 @@ function Treemap(props: {
   size: (b: number) => string;
   onSelect: (id: number) => void;
   onZoom: (id: number) => void;
+  onContext: (id: number, x: number, y: number) => void;
 }) {
-  const { map, colors, selected, hlExt, dark, size, onSelect, onZoom } = props;
+  const { map, colors, selected, hlExt, dark, size, onSelect, onZoom, onContext } = props;
   const { t } = useI18n();
   const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -809,8 +961,8 @@ function Treemap(props: {
     if (!ctx) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, box.w, box.h);
-    draw(ctx, tiles, { colors, selected, highlightExt: hlExt, dark });
-  }, [tiles, colors, selected, hlExt, dark, box]);
+    draw(ctx, tiles, { colors, selected, highlightExt: hlExt, dark, format: size });
+  }, [tiles, colors, selected, hlExt, dark, box, size]);
 
   const at = (e: React.MouseEvent) => {
     const r = canvas.current!.getBoundingClientRect();
@@ -848,8 +1000,15 @@ function Treemap(props: {
         }}
         onMouseLeave={() => setTip(null)}
         onMouseDown={(e) => {
+          if (e.button !== 0) return;
           const { tile } = at(e);
           if (tile) onSelect(tile.node.id);
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          const { tile } = at(e);
+          setTip(null);
+          if (tile) onContext(tile.node.id, e.clientX, e.clientY);
         }}
         onDoubleClick={(e) => {
           const { tile } = at(e);

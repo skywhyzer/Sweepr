@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+### New icon and logo
+
+- A new application icon (installer, window, taskbar) and a new logo for the README and the Settings page.
+
+### Window scaling
+
+- In a large window (maximised or full screen) the whole interface now scales up smoothly with the window, up to 175%, instead of staying tiny with empty space around it. Windows of the default size and smaller look as before.
+
+### Loading placeholders
+
+- Pages that load a list (Programs, Startup, Clean-up, Recovery, Tweaks, registry backups) show shimmering placeholder rows in the shape of the content instead of a lone spinner.
+
+### Disk
+
+- Right-click on a tile of the map, on a row of the tree or on a file in the "Largest files" list opens a context menu: open, show in Explorer, zoom into the folder, copy the path, move to the Recycle Bin, delete permanently. The Menu key and Shift+F10 do the same in the tree.
+- The treemap has a new look: rounded tiles with gutters between folders, a softer colour palette tuned separately for the dark and light themes, file names and sizes on large tiles and a clearer selection ring.
+
 ## 0.4.0
 
 ### New: startup, clean-up, recovery and program updates

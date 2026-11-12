@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { api } from "./api";
 import { formatDate, formatSize, useI18n, type Key } from "./i18n";
 import type { AppInfo, WingetUpdate } from "./types";
-import { AppIcon, Icon, Spinner } from "./ui";
+import { AppIcon, Icon, Skeleton, Spinner } from "./ui";
 
 type Filter = "all" | "win32" | "store" | "updates";
 type Sort = "name" | "size" | "date";

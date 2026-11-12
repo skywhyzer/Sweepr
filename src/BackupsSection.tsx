@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "./api";
 import { useI18n } from "./i18n";
 import type { BackupInfo } from "./types";
-import { Icon, Spinner } from "./ui";
+import { Icon, Skeleton } from "./ui";
 
 type Status = "busy" | "restored" | "failed";
 
@@ -44,9 +44,7 @@ export default function BackupsSection() {
           </button>
         </div>
         {list === null ? (
-          <div className="progress">
-            <Spinner />
-          </div>
+          <Skeleton rows={5} />
         ) : list.length === 0 ? (
           <div className="progress dim">
             <Icon name="history" className="big" />

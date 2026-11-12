@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 import { formatSize, useI18n, type Key } from "./i18n";
 import type { CleanCategory, Leftover, Orphan } from "./types";
-import { Icon, Spinner } from "./ui";
+import { Icon, Skeleton, Spinner } from "./ui";
 
 type Tab = "junk" | "orphans";
 
