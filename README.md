@@ -1,111 +1,111 @@
 <div align="center">
 
-<img src="app-icon.png" width="96" alt="Sweepr logo" />
+<img src="app-icon.png" width="96" alt="Логотип Sweepr" />
 
 # Sweepr
 
-**A toolkit for Windows: removes programs *and* everything they leave behind, cleans the system, manages startup and helps fix the PC when something goes wrong.**
+**Набор инструментов для Windows: удаляет программы вместе со всеми «хвостами», чистит систему, управляет автозагрузкой и помогает починить ПК, когда что-то пошло не так.**
 
-English · [Русский](README.ru.md)
+[English](README.en.md) · Русский
 
-![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D4)
-![Built with](https://img.shields.io/badge/built%20with-Tauri%20%2B%20React-24C8DB)
-![License](https://img.shields.io/badge/license-MIT-green)
+![Платформа](https://img.shields.io/badge/платформа-Windows%2010%20%7C%2011-0078D4)
+![Стек](https://img.shields.io/badge/стек-Tauri%20%2B%20React-24C8DB)
+![Лицензия](https://img.shields.io/badge/лицензия-MIT-green)
 
-<img src="docs/screenshots/main-dark.png" alt="Sweepr main window" width="820" />
+<img src="docs/screenshots/main-dark.png" alt="Главное окно Sweepr" width="820" />
 
 </div>
 
-## What Sweepr does
+## Что умеет Sweepr
 
-A navigation pane on the left: **Programs · Startup · Clean-up · Disk · Tweaks · Recovery**, with **Settings** at the bottom.
+Слева — панель навигации: **Программы · Автозагрузка · Очистка · Диск · Твики · Восстановление**, внизу — **Параметры**.
 
-### Programs
+### Программы
 
-- One list for classic Win32 programs and Microsoft Store apps: icon, publisher, version, size, install date.
-- **Clean uninstall.** The program's own uninstaller runs first, then Sweepr scans for leftover files, folders and registry entries. Every leftover is shown with the reason it was found and removed only after you confirm.
-- **Force removal** for broken or missing uninstallers: skips the uninstaller and removes the traces directly.
-- **Updates through winget.** If winget is installed, the list shows which programs have a newer version; update one program or all of them.
-- **Works like File Explorer.** Details pane (version, size, location, uninstall command, registry key), context menu, full keyboard control: arrows, type-ahead, `Enter` / `Delete` to uninstall, `Ctrl+F` / `F3` to search.
-- Instant search, filters and sorting by name, size or date.
+- Один список для классических Win32-программ и приложений Microsoft Store: иконка, издатель, версия, размер, дата установки.
+- **Чистое удаление.** Сначала запускается штатный деинсталлятор, затем Sweepr ищет оставшиеся файлы, папки и записи реестра. Каждый «хвост» показан с причиной, по которой он найден, и удаляется только после вашего подтверждения.
+- **Принудительное удаление** — для сломанных или пропавших деинсталляторов: деинсталлятор пропускается, следы убираются напрямую.
+- **Обновления через winget.** Если winget установлен, в списке видно, для каких программ вышла новая версия. Можно обновить одну программу или все сразу.
+- **Как в Проводнике.** Панель деталей (версия, размер, расположение, команда удаления, ключ реестра), контекстное меню, управление с клавиатуры: стрелки, поиск по первым буквам, `Enter` / `Delete` — удалить, `Ctrl+F` / `F3` — поиск.
+- Мгновенный поиск, фильтры и сортировка по имени, размеру и дате.
 
-### Startup
+### Автозагрузка
 
-- Everything that runs with Windows in one list: Run keys, the Startup folder, sign-in scheduled tasks and third-party services, with publisher and command line.
-- **Turning an item off never deletes it.** It uses the same flags as Task Manager, and services move to manual start. You can turn it back on any time.
-- Entries whose program no longer exists are flagged and can be removed with a backup.
+- Всё, что запускается вместе с Windows, в одном списке: ключи Run, папка «Автозагрузка», задачи планировщика при входе и сторонние службы. Видны издатель и команда запуска.
+- **Отключение ничего не удаляет.** Используются те же флаги, что у диспетчера задач, а службы переводятся на ручной запуск. Включить обратно можно в любой момент.
+- Записи, у которых программа пропала с диска, помечаются и удаляются с резервной копией.
 
-### Clean-up
+### Очистка
 
-- **Junk files.** Ten categories: temporary files, Windows Update and Delivery Optimization caches, crash dumps, error reports, shader cache, browser caches, Recycle Bin and more. The size of each category is shown before anything is removed. Only things Windows and programs recreate are touched.
-- **Leftovers of removed programs.** Folders and registry keys that match no installed program, aren't used by startup entries or services and haven't changed for 30 days. Nothing is preselected; folders go to the Recycle Bin, keys to a registry backup.
+- **Мусорные файлы.** Десять категорий: временные файлы, кэш Центра обновлений и оптимизации доставки, дампы сбоев, отчёты об ошибках, кэш шейдеров, кэш браузеров, корзина и другие. Объём каждой категории виден до удаления. Затрагивается только то, что Windows и программы создают заново.
+- **Остатки удалённых программ.** Папки и ключи реестра, которым не соответствует ни одна установленная программа, не связаны с автозагрузкой и службами и не менялись 30 дней. По умолчанию ничего не выбрано; папки уходят в корзину, ключи — в резервную копию реестра.
 
-### Disk
+### Диск
 
-A WinDirStat-style usage analyzer: scan a drive or folder and see a folder tree with share bars, a colored treemap (with zoom) and statistics by file type. Largest files list, open or show in Explorer, move to the Recycle Bin or delete permanently right from the view.
+Анализатор занятого места в духе WinDirStat: сканирует диск или папку и показывает дерево папок с долями, цветную карту-treemap (с приближением) и статистику по типам файлов. Список самых больших файлов, открыть или показать в Проводнике, отправить в корзину или удалить навсегда прямо оттуда.
 
-### Tweaks
+### Твики
 
-- 40 reversible settings in five groups: interface, privacy, gaming, updates and security.
-- Examples: disable Windows Update, SmartScreen and UAC, remove shortcut arrows, dark mode, block telemetry and location, stop promoted app installs.
-- The previous value is saved before every change. Undo one tweak or all of them in a click, even after a restart. If Windows reverts a setting, Sweepr notices.
-- High-risk tweaks are marked red and ask for confirmation.
-- Microsoft Defender can't be switched off through the registry because of Tamper Protection, so Sweepr explains how to do it in Windows Security instead of showing a toggle that does nothing.
+- 40 обратимых настроек в пяти группах: интерфейс, приватность, игры, обновления и безопасность.
+- Среди них: отключение обновлений Windows, SmartScreen и UAC, удаление стрелок с ярлыков, тёмная тема, блокировка телеметрии и геолокации, запрет навязанных приложений.
+- Перед каждым изменением запоминается прежнее значение. Любой твик (или все сразу) откатывается одним нажатием, даже после перезагрузки. Если Windows сама вернёт настройку, Sweepr это заметит.
+- Твики с высоким риском выделены красным и просят подтверждение.
+- Защитник Windows через реестр не выключить из-за Tamper Protection, поэтому Sweepr объясняет, как отключить его в «Безопасности Windows», а не показывает неработающий переключатель.
 
-### Recovery
+### Восстановление
 
-- **Restore points:** list, create, turn System Protection on, open the System Restore wizard. Sweepr creates one automatically before uninstalling a program and before a high-risk tweak (on by default, can be turned off in Settings; needs administrator rights).
-- **Registry backups.** A backup is made before every registry clean-up, and you can restore it any time.
-- **Repair:** system file check (`sfc`), image repair (`DISM`), component store clean-up, network reset, Windows Update reset (folders are renamed, not deleted), DNS flush, icon cache rebuild, Explorer restart.
+- **Точки восстановления:** просмотр, создание, включение защиты системы, запуск мастера восстановления Windows. Sweepr сам создаёт точку перед удалением программы и перед рискованным твиком (включено по умолчанию, отключается в Параметрах; нужны права администратора).
+- **Копии реестра.** Резервная копия создаётся перед каждой очисткой реестра, восстановить её можно в любой момент.
+- **Ремонт:** проверка системных файлов (`sfc`), восстановление образа (`DISM`), очистка хранилища компонентов, сброс сети и Центра обновлений (папки переименовываются, а не удаляются), очистка DNS, пересборка кэша значков, перезапуск Проводника.
 
-### Look and feel
+### Внешний вид
 
-Looks like part of Windows 11: Fluent design, Mica backdrop, your system accent colour, Segoe UI Variable. Light and dark themes (or follow Windows), English and Russian interface. A small app powered by Tauri, with no bundled browser.
+Выглядит как часть Windows 11: дизайн Fluent, фон Mica, системный акцентный цвет, шрифт Segoe UI Variable. Светлая и тёмная темы (или как в Windows), интерфейс на русском и английском. Приложение лёгкое, на Tauri, без встроенного браузера.
 
-## Screenshots
+## Скриншоты
 
 | | |
 |---|---|
-| <img src="docs/screenshots/startup.png" /><br/><sub>Startup</sub> | <img src="docs/screenshots/cleanup.png" /><br/><sub>Clean-up</sub> |
-| <img src="docs/screenshots/disk.png" /><br/><sub>Disk</sub> | <img src="docs/screenshots/tweaks.png" /><br/><sub>Tweaks</sub> |
-| <img src="docs/screenshots/recovery.png" /><br/><sub>Recovery</sub> | <img src="docs/screenshots/main-light.png" /><br/><sub>Light theme</sub> |
+| <img src="docs/screenshots/startup.png" /><br/><sub>Автозагрузка</sub> | <img src="docs/screenshots/cleanup.png" /><br/><sub>Очистка</sub> |
+| <img src="docs/screenshots/disk.png" /><br/><sub>Диск</sub> | <img src="docs/screenshots/tweaks.png" /><br/><sub>Твики</sub> |
+| <img src="docs/screenshots/recovery.png" /><br/><sub>Восстановление</sub> | <img src="docs/screenshots/main-light.png" /><br/><sub>Светлая тема</sub> |
 
-Uninstalling a program: confirm, leftovers found, done.
+Удаление программы: подтверждение, найденные остатки, результат.
 
 | 1 | 2 | 3 |
 |---|---|---|
 | <img src="docs/screenshots/confirm.png" /> | <img src="docs/screenshots/leftovers.png" /> | <img src="docs/screenshots/done.png" /> |
 
-## Installation
+## Установка
 
-Download the latest `Sweepr_x.y.z_x64-setup.exe` from the [Releases](https://github.com/skywhyzer/Sweepr/releases) page and run it.
+Скачайте последний `Sweepr_x.y.z_x64-setup.exe` со страницы [Releases](https://github.com/skywhyzer/Sweepr/releases) и запустите его.
 
-> Some features need administrator rights: removing certain programs, system-level tweaks, restore points, repair. If something fails with an access error, run Sweepr as administrator.
+> Часть функций работает только с правами администратора: удаление некоторых программ, твики уровня системы, точки восстановления, ремонт. Если что-то завершается ошибкой доступа, запустите Sweepr от имени администратора.
 
-## Build from source
+## Сборка из исходников
 
-Requirements: [Node.js](https://nodejs.org/) 20+, [Rust](https://rustup.rs/) and the
-[Tauri prerequisites for Windows](https://tauri.app/start/prerequisites/).
+Требуются [Node.js](https://nodejs.org/) 20+, [Rust](https://rustup.rs/) и
+[зависимости Tauri для Windows](https://tauri.app/start/prerequisites/).
 
 ```bash
 git clone https://github.com/skywhyzer/Sweepr.git
 cd Sweepr
 npm install
 
-npm run tauri dev     # run in development mode
-npm run tauri build   # build the installer (src-tauri/target/release/bundle/nsis)
+npm run tauri dev     # запуск в режиме разработки
+npm run tauri build   # сборка установщика (src-tauri/target/release/bundle/nsis)
 ```
 
-## Tech stack
+## Технологии
 
-- **Frontend:** React 19, TypeScript, Vite
-- **Backend:** Rust, Tauri 2
-- **Installer:** NSIS (English / Russian)
+- **Интерфейс:** React 19, TypeScript, Vite
+- **Ядро:** Rust, Tauri 2
+- **Установщик:** NSIS (русский / английский)
 
-## Roadmap
+## Планы
 
-Ideas for future versions are tracked in [Issues](https://github.com/skywhyzer/Sweepr/issues). Suggestions and pull requests are welcome.
+Идеи для будущих версий собираются в [Issues](https://github.com/skywhyzer/Sweepr/issues). Предложения и pull request’ы приветствуются.
 
-## License
+## Лицензия
 
 [MIT](LICENSE)
