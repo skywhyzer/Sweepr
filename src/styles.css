@@ -1817,6 +1817,29 @@ input[type="checkbox"]:disabled {
   color: var(--on-warn-container);
 }
 
+.tweak-tags .badge.warn .icon {
+  color: var(--warn);
+}
+
+.tweak-tags .badge.danger {
+  background: var(--danger-container);
+  color: var(--on-danger-container);
+}
+
+.tweak-tags .badge.danger .icon {
+  color: var(--danger);
+}
+
+/* Neutral InfoBar (the default banner is amber) */
+.banner.inline.info {
+  background: color-mix(in srgb, var(--primary) 9%, var(--card));
+  color: var(--text);
+}
+
+.banner.inline.info > .icon:first-child {
+  color: var(--primary);
+}
+
 .tweak-note {
   margin: 0 0 8px;
   font-size: 13px;

@@ -45,11 +45,12 @@ export interface BackupInfo {
 
 export interface TweakInfo {
   id: string;
-  category: "interface" | "privacy" | "gaming" | "updates";
-  risk: "low" | "medium";
+  category: "interface" | "privacy" | "gaming" | "updates" | "security";
+  risk: "low" | "medium" | "high";
   admin: boolean;
   explorer: boolean;
   relogin: boolean;
+  reboot: boolean;
   enabled: boolean;
   /** Sweepr changed it and can restore the original value. */
   managed: boolean;

@@ -1,10 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 import { useI18n, type Key } from "./i18n";
 import type { TweakInfo } from "./types";
 import { Icon, Spinner } from "./ui";
 
-const CATEGORIES: TweakInfo["category"][] = ["interface", "privacy", "gaming", "updates"];
+const CATEGORIES: TweakInfo["category"][] = [
+  "interface",
+  "privacy",
+  "gaming",
+  "updates",
+  "security",
+];
 
 /** Toggles for system settings; every change can be undone, even after a restart. */
 export default function TweaksPage({ elevated }: { elevated: boolean }) {
@@ -14,10 +20,22 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [note, setNote] = useState<string | null>(null);
   const [explorerPending, setExplorerPending] = useState(false);
+  const [query, setQuery] = useState("");
+  const [confirm, setConfirm] = useState<TweakInfo | null>(null);
 
   useEffect(() => {
-    api.listTweaks().then(setList).catch(() => setList([]));
+    api
+      .listTweaks()
+      .then(setList)
+      .catch(() => setList([]));
   }, []);
+
+  useEffect(() => {
+    if (!confirm) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setConfirm(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [confirm]);
 
   const toggle = async (tw: TweakInfo, enabled: boolean) => {
     setBusy(tw.id);
@@ -36,6 +54,12 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
     } finally {
       setBusy(null);
     }
+  };
+
+  // High-risk tweaks ask for confirmation before they are switched on.
+  const onToggle = (tw: TweakInfo, next: boolean) => {
+    if (next && tw.risk === "high") setConfirm(tw);
+    else toggle(tw, next);
   };
 
   const resetAll = async () => {
@@ -62,6 +86,20 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
 
   const managed = list?.filter((x) => x.managed).length ?? 0;
 
+  // Filter by the translated title and description so search works per language.
+  const q = query.trim().toLowerCase();
+  const matches = useMemo(() => {
+    if (!q) return null;
+    const set = new Set<string>();
+    for (const tw of list ?? []) {
+      const hay = `${t(`tw_${tw.id}` as Key)} ${t(`tw_${tw.id}_d` as Key)}`.toLowerCase();
+      if (hay.includes(q)) set.add(tw.id);
+    }
+    return set;
+  }, [q, list, t]);
+
+  const found = matches ? (list ?? []).filter((x) => matches.has(x.id)) : list;
+
   return (
     <div className="page">
       <header className="page-head">
@@ -69,6 +107,20 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
           <h1>{t("tweaks")}</h1>
           <p>{t("tweaksText")}</p>
         </div>
+        <label className="search">
+          <Icon name="search" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("tweaksSearch")}
+            spellCheck={false}
+          />
+          {query && (
+            <button className="icon-btn small" onClick={() => setQuery("")} aria-label={t("close")}>
+              <Icon name="close" />
+            </button>
+          )}
+        </label>
         <button className="btn" disabled={busy !== null || managed === 0} onClick={resetAll}>
           <Icon name="undo" />
           {t("tweaksReset")}
@@ -91,14 +143,25 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
           <div className="progress">
             <Spinner />
           </div>
+        ) : found && found.length === 0 ? (
+          <div className="progress dim">
+            <Icon name="search_off" className="big" />
+            <p>{t("tweaksNothing")}</p>
+          </div>
         ) : (
           <div className="settings">
             {CATEGORIES.map((cat) => {
-              const items = list.filter((x) => x.category === cat);
+              const items = (found ?? []).filter((x) => x.category === cat);
               if (items.length === 0) return null;
               return (
                 <section key={cat}>
                   <h3 className="tweak-cat">{t(`cat_${cat}` as Key)}</h3>
+                  {cat === "security" && !q && (
+                    <div className="banner inline info">
+                      <Icon name="info" />
+                      <span>{t("tweaksDefenderNote")}</span>
+                    </div>
+                  )}
                   {items.map((tw) => {
                     const locked = tw.admin && !elevated;
                     const title = t(`tw_${tw.id}` as Key);
@@ -108,6 +171,12 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
                           <div className="row-name">{title}</div>
                           <div className="row-sub wrap">{t(`tw_${tw.id}_d` as Key)}</div>
                           <div className="tweak-tags">
+                            {tw.risk === "high" && (
+                              <span className="badge danger">
+                                <Icon name="warning" />
+                                {t("tweaksHigh")}
+                              </span>
+                            )}
                             {tw.risk === "medium" && (
                               <span className="badge warn">
                                 <Icon name="warning" />
@@ -118,6 +187,12 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
                               <span className="badge">
                                 <Icon name="shield" />
                                 {t("tweaksNeedAdmin")}
+                              </span>
+                            )}
+                            {tw.reboot && (
+                              <span className="badge">
+                                <Icon name="refresh" />
+                                {t("tweaksReboot")}
                               </span>
                             )}
                             {tw.relogin && (
@@ -146,7 +221,7 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
                           <button
                             className="btn tonal compact"
                             disabled={busy !== null || locked}
-                            onClick={() => toggle(tw, true)}
+                            onClick={() => onToggle(tw, true)}
                           >
                             {t("tweaksReapply")}
                           </button>
@@ -157,7 +232,7 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
                             aria-label={title}
                             className={`switch ${tw.enabled ? "on" : ""}`}
                             disabled={busy !== null || locked}
-                            onClick={() => toggle(tw, !tw.enabled)}
+                            onClick={() => onToggle(tw, !tw.enabled)}
                           >
                             <span />
                           </button>
@@ -170,8 +245,41 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
             })}
           </div>
         )}
-
       </div>
+
+      {confirm && (
+        <div className="scrim" onMouseDown={(e) => e.target === e.currentTarget && setConfirm(null)}>
+          <div className="dialog" role="dialog" aria-modal="true">
+            <div className="status-head">
+              <div className="status-mark warn">
+                <Icon name="warning" />
+              </div>
+              <h2>{t("tweakConfirmTitle", { name: t(`tw_${confirm.id}` as Key) })}</h2>
+            </div>
+            <p>{t(`tw_${confirm.id}_d` as Key)}</p>
+            <p className="note">
+              <Icon name="info" />
+              <span>{t("tweakConfirmHigh")}</span>
+            </p>
+            <div className="dialog-actions">
+              <button className="btn text" onClick={() => setConfirm(null)}>
+                {t("cancel")}
+              </button>
+              <button
+                className="btn danger"
+                autoFocus
+                onClick={() => {
+                  const tw = confirm;
+                  setConfirm(null);
+                  toggle(tw, true);
+                }}
+              >
+                {t("tweakApply")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

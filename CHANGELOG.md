@@ -24,6 +24,15 @@ The interface has moved from a Material/Google-style design to Fluent, so Sweepr
 - Keyboard: arrows, Page Up/Down, Home/End, type-ahead by name, `Enter` / `Delete` to uninstall, `Shift+F10` / Menu key for the context menu, `↓` from the search box into the list.
 - The default window is larger (1180 × 760) to fit the details pane.
 
+### Many more tweaks
+
+- The tweak catalogue grows from 19 to 40, in five groups (interface, privacy, gaming, updates, security).
+- Popular additions: disable Windows Update (and driver / Store auto-updates), disable SmartScreen, disable UAC, remove shortcut arrows, Windows dark mode, turn off transparency, accent colour on title bars, show all tray icons, block location, stop promoted-app installs, disable Cortana, turn off online speech and typing data collection, no background apps, enable long file paths, and more.
+- High-risk tweaks (disable updates, SmartScreen, UAC) are marked red and ask for confirmation; tweaks that need a full restart carry a badge.
+- A search box filters the catalogue.
+- Removing the shortcut arrow uses a transparent icon Sweepr generates, instead of a DLL icon index that varies between builds and often leaves a black square.
+- Microsoft Defender is intentionally **not** offered as a toggle: on current Windows its registry switch is ignored by Tamper Protection, so the Security section explains how to turn it off in Windows Security instead of shipping a switch that does nothing.
+
 ## 0.3.0
 
 ### New: reversible system tweaks

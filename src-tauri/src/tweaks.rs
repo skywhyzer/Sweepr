@@ -28,6 +28,10 @@ enum Val {
 enum V {
     D(u32),
     S(&'static str),
+    /// Absolute path to the transparent icon Sweepr writes next to its journal.
+    /// Used to hide an icon overlay (the shortcut arrow) without a DLL index,
+    /// which differs between Windows builds and often shows a black square.
+    Blank,
 }
 
 impl V {
@@ -35,6 +39,7 @@ impl V {
         match self {
             V::D(n) => Val::Dword(n),
             V::S(s) => Val::Sz(s.to_string()),
+            V::Blank => Val::Sz(blank_icon_path().unwrap_or_default()),
         }
     }
 }
@@ -52,7 +57,7 @@ struct Op {
 struct Tweak {
     id: &'static str,
     category: &'static str,
-    /// "low" | "medium"
+    /// "low" | "medium" | "high"
     risk: &'static str,
     /// Needs administrator rights (writes to HKLM).
     admin: bool,
@@ -63,8 +68,55 @@ struct Tweak {
     ops: &'static [Op],
 }
 
+/// Tweaks that only take effect after a full restart (not just a new session).
+fn needs_reboot(id: &str) -> bool {
+    matches!(id, "uacOff")
+}
+
+/// `%LOCALAPPDATA%\Sweepr\blank.ico` — a fully transparent 1×1 icon.
+fn blank_icon_path() -> Option<String> {
+    Some(
+        env_path("LOCALAPPDATA")?
+            .join("Sweepr")
+            .join("blank.ico")
+            .to_string_lossy()
+            .into_owned(),
+    )
+}
+
+/// Write the transparent icon if it is not there yet, so a tweak can point an
+/// icon overlay at it. The bytes are a minimal 1×1 32-bit icon whose AND mask
+/// marks the single pixel transparent, which renders as nothing in Explorer.
+fn ensure_blank_icon() -> Result<(), String> {
+    let path = PathBuf::from(blank_icon_path().ok_or("LOCALAPPDATA is not set")?);
+    if path.exists() {
+        return Ok(());
+    }
+    if let Some(dir) = path.parent() {
+        std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+    }
+    #[rustfmt::skip]
+    let ico: [u8; 70] = [
+        0, 0, 1, 0, 1, 0,              // ICONDIR: reserved, type=icon, count=1
+        1, 1, 0, 0, 1, 0, 32, 0,       // entry: 1×1, 1 plane, 32 bpp
+        48, 0, 0, 0, 22, 0, 0, 0,      // 48 bytes of image data at offset 22
+        40, 0, 0, 0,                   // BITMAPINFOHEADER size
+        1, 0, 0, 0, 2, 0, 0, 0,        // width=1, height=2 (XOR + AND)
+        1, 0, 32, 0, 0, 0, 0, 0,       // 1 plane, 32 bpp, no compression
+        0, 0, 0, 0, 0, 0, 0, 0,        // image size, X pixels-per-metre
+        0, 0, 0, 0, 0, 0, 0, 0,        // Y pixels-per-metre, colours used
+        0, 0, 0, 0,                    // important colours
+        0, 0, 0, 0,                    // XOR: one BGRA pixel, fully clear
+        128, 0, 0, 0,                  // AND: top bit set → pixel is masked out
+    ];
+    std::fs::write(&path, ico).map_err(|e| e.to_string())
+}
+
 const ADV: &str = r"HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced";
 const CDM: &str = r"HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager";
+const PERSONALIZE: &str =
+    r"HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
+const WU_AU: &str = r"HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU";
 
 const fn op(path: &'static str, name: &'static str, on: V, off: Option<V>) -> Op {
     Op { path, name, on, off }
@@ -302,6 +354,318 @@ static CATALOG: &[Tweak] = &[
             None,
         )],
     },
+    // ---- Interface (added) ----
+    Tweak {
+        id: "noShortcutArrow",
+        category: "interface",
+        risk: "low",
+        admin: false,
+        explorer: true,
+        relogin: false,
+        ops: &[op(
+            r"HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons",
+            "29",
+            V::Blank,
+            None,
+        )],
+    },
+    Tweak {
+        id: "darkMode",
+        category: "interface",
+        risk: "low",
+        admin: false,
+        explorer: true,
+        relogin: false,
+        ops: &[
+            op(PERSONALIZE, "AppsUseLightTheme", V::D(0), Some(V::D(1))),
+            op(PERSONALIZE, "SystemUsesLightTheme", V::D(0), Some(V::D(1))),
+        ],
+    },
+    Tweak {
+        id: "noTransparency",
+        category: "interface",
+        risk: "low",
+        admin: false,
+        explorer: false,
+        relogin: false,
+        ops: &[op(PERSONALIZE, "EnableTransparency", V::D(0), Some(V::D(1)))],
+    },
+    Tweak {
+        id: "accentTitlebars",
+        category: "interface",
+        risk: "low",
+        admin: false,
+        explorer: false,
+        relogin: false,
+        ops: &[op(
+            r"HKCU\Software\Microsoft\Windows\DWM",
+            "ColorPrevalence",
+            V::D(1),
+            Some(V::D(0)),
+        )],
+    },
+    Tweak {
+        id: "showTrayIcons",
+        category: "interface",
+        risk: "low",
+        admin: false,
+        explorer: true,
+        relogin: false,
+        ops: &[op(
+            r"HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer",
+            "EnableAutoTray",
+            V::D(0),
+            Some(V::D(1)),
+        )],
+    },
+    Tweak {
+        id: "verboseStatus",
+        category: "interface",
+        risk: "low",
+        admin: true,
+        explorer: false,
+        relogin: false,
+        ops: &[op(
+            r"HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System",
+            "VerboseStatus",
+            V::D(1),
+            None,
+        )],
+    },
+    // ---- Privacy (added) ----
+    Tweak {
+        id: "noTailored",
+        category: "privacy",
+        risk: "low",
+        admin: false,
+        explorer: false,
+        relogin: false,
+        ops: &[op(
+            r"HKCU\Software\Microsoft\Windows\CurrentVersion\Privacy",
+            "TailoredExperiencesWithDiagnosticDataEnabled",
+            V::D(0),
+            Some(V::D(1)),
+        )],
+    },
+    Tweak {
+        id: "noOnlineSpeech",
+        category: "privacy",
+        risk: "low",
+        admin: false,
+        explorer: false,
+        relogin: false,
+        ops: &[op(
+            r"HKCU\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy",
+            "HasAccepted",
+            V::D(0),
+            Some(V::D(1)),
+        )],
+    },
+    Tweak {
+        id: "noFeedback",
+        category: "privacy",
+        risk: "low",
+        admin: false,
+        explorer: false,
+        relogin: false,
+        ops: &[op(
+            r"HKCU\Software\Microsoft\Siuf\Rules",
+            "NumberOfSIUFInPeriod",
+            V::D(0),
+            None,
+        )],
+    },
+    Tweak {
+        id: "noInkTyping",
+        category: "privacy",
+        risk: "low",
+        admin: false,
+        explorer: false,
+        relogin: false,
+        ops: &[
+            op(
+                r"HKCU\Software\Microsoft\InputPersonalization",
+                "RestrictImplicitTextCollection",
+                V::D(1),
+                Some(V::D(0)),
+            ),
+            op(
+                r"HKCU\Software\Microsoft\InputPersonalization",
+                "RestrictImplicitInkCollection",
+                V::D(1),
+                Some(V::D(0)),
+            ),
+            op(
+                r"HKCU\Software\Microsoft\Personalization\Settings",
+                "AcceptedPrivacyPolicy",
+                V::D(0),
+                Some(V::D(1)),
+            ),
+        ],
+    },
+    Tweak {
+        id: "noLocation",
+        category: "privacy",
+        risk: "medium",
+        admin: true,
+        explorer: false,
+        relogin: false,
+        ops: &[op(
+            r"HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location",
+            "Value",
+            V::S("Deny"),
+            Some(V::S("Allow")),
+        )],
+    },
+    Tweak {
+        id: "noConsumerFeatures",
+        category: "privacy",
+        risk: "medium",
+        admin: true,
+        explorer: false,
+        relogin: false,
+        ops: &[op(
+            r"HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent",
+            "DisableWindowsConsumerFeatures",
+            V::D(1),
+            None,
+        )],
+    },
+    Tweak {
+        id: "noCortana",
+        category: "privacy",
+        risk: "low",
+        admin: true,
+        explorer: false,
+        relogin: false,
+        ops: &[op(
+            r"HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search",
+            "AllowCortana",
+            V::D(0),
+            None,
+        )],
+    },
+    // ---- Performance & gaming (added) ----
+    Tweak {
+        id: "noStartupDelay",
+        category: "gaming",
+        risk: "low",
+        admin: false,
+        explorer: false,
+        relogin: true,
+        ops: &[op(
+            r"HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Serialize",
+            "StartupDelayInMSec",
+            V::D(0),
+            None,
+        )],
+    },
+    Tweak {
+        id: "noBackgroundApps",
+        category: "gaming",
+        risk: "low",
+        admin: false,
+        explorer: false,
+        relogin: false,
+        ops: &[op(
+            r"HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications",
+            "GlobalUserDisabled",
+            V::D(1),
+            Some(V::D(0)),
+        )],
+    },
+    Tweak {
+        id: "longPaths",
+        category: "gaming",
+        risk: "low",
+        admin: true,
+        explorer: false,
+        relogin: false,
+        ops: &[op(
+            r"HKLM\SYSTEM\CurrentControlSet\Control\FileSystem",
+            "LongPathsEnabled",
+            V::D(1),
+            Some(V::D(0)),
+        )],
+    },
+    // ---- Updates (added) ----
+    Tweak {
+        id: "noAutoUpdate",
+        category: "updates",
+        risk: "high",
+        admin: true,
+        explorer: false,
+        relogin: false,
+        ops: &[
+            op(WU_AU, "NoAutoUpdate", V::D(1), None),
+            op(WU_AU, "AUOptions", V::D(2), None),
+        ],
+    },
+    Tweak {
+        id: "noDriverUpdates",
+        category: "updates",
+        risk: "medium",
+        admin: true,
+        explorer: false,
+        relogin: false,
+        ops: &[op(
+            r"HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate",
+            "ExcludeWUDriversInQualityUpdate",
+            V::D(1),
+            None,
+        )],
+    },
+    Tweak {
+        id: "noStoreUpdates",
+        category: "updates",
+        risk: "medium",
+        admin: true,
+        explorer: false,
+        relogin: false,
+        ops: &[op(
+            r"HKLM\SOFTWARE\Policies\Microsoft\WindowsStore",
+            "AutoDownload",
+            V::D(2),
+            None,
+        )],
+    },
+    // ---- Security ----
+    Tweak {
+        id: "smartScreenOff",
+        category: "security",
+        risk: "high",
+        admin: true,
+        explorer: false,
+        relogin: false,
+        ops: &[
+            op(
+                r"HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer",
+                "SmartScreenEnabled",
+                V::S("Off"),
+                Some(V::S("RequireAdmin")),
+            ),
+            op(
+                r"HKLM\SOFTWARE\Policies\Microsoft\Windows\System",
+                "EnableSmartScreen",
+                V::D(0),
+                None,
+            ),
+        ],
+    },
+    Tweak {
+        id: "uacOff",
+        category: "security",
+        risk: "high",
+        admin: true,
+        explorer: false,
+        relogin: false,
+        ops: &[op(
+            r"HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System",
+            "EnableLUA",
+            V::D(0),
+            Some(V::D(1)),
+        )],
+    },
 ];
 
 // ---------------------------------------------------------------------------
@@ -438,6 +802,8 @@ pub struct TweakInfo {
     admin: bool,
     explorer: bool,
     relogin: bool,
+    /// Needs a full restart to take effect.
+    reboot: bool,
     /// Every value matches the "enabled" state.
     enabled: bool,
     /// Sweepr changed it and can restore the original.
@@ -463,6 +829,7 @@ fn info(t: &Tweak, journal: &Journal) -> TweakInfo {
         admin: t.admin,
         explorer: t.explorer,
         relogin: t.relogin,
+        reboot: needs_reboot(t.id),
         enabled,
         managed: entry.is_some(),
         drift: entry.is_some() && !enabled,
@@ -484,6 +851,10 @@ pub fn list_tweaks() -> Vec<TweakInfo> {
 }
 
 fn enable(t: &Tweak, journal: &mut Journal) -> Result<(), String> {
+    // Tweaks that hide an icon overlay need the transparent icon in place first.
+    if t.ops.iter().any(|o| matches!(o.on, V::Blank)) {
+        ensure_blank_icon()?;
+    }
     // Read everything first: if any value has an unsupported type we bail out
     // before changing anything.
     let mut saved = Vec::new();
