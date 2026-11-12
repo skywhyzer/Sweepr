@@ -64,13 +64,17 @@ Looks like part of Windows 11: Fluent design, Mica backdrop, your system accent 
 
 ## Screenshots
 
-> The screenshots below were taken in earlier versions and will be refreshed.
+| | |
+|---|---|
+| <img src="docs/screenshots/startup.png" /><br/><sub>Startup</sub> | <img src="docs/screenshots/cleanup.png" /><br/><sub>Clean-up</sub> |
+| <img src="docs/screenshots/disk.png" /><br/><sub>Disk</sub> | <img src="docs/screenshots/tweaks.png" /><br/><sub>Tweaks</sub> |
+| <img src="docs/screenshots/recovery.png" /><br/><sub>Recovery</sub> | <img src="docs/screenshots/main-light.png" /><br/><sub>Light theme</sub> |
 
-| 1. Confirm | 2. Leftovers found | 3. Done |
+Uninstalling a program: confirm, leftovers found, done.
+
+| 1 | 2 | 3 |
 |---|---|---|
-| <img src="docs/screenshots/confirm.png" width="280" /> | <img src="docs/screenshots/leftovers.png" width="280" /> | <img src="docs/screenshots/done.png" width="280" /> |
-
-<p align="center"><img src="docs/screenshots/main-light.png" alt="Sweepr light theme" width="620" /></p>
+| <img src="docs/screenshots/confirm.png" /> | <img src="docs/screenshots/leftovers.png" /> | <img src="docs/screenshots/done.png" /> |
 
 ## Installation
 
