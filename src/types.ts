@@ -186,6 +186,45 @@ export interface RepairResult {
   reboot: boolean;
 }
 
+export interface DriverInfo {
+  device: string;
+  class: string;
+  manufacturer: string;
+  provider: string;
+  version: string;
+  /** Unix seconds; ~0 when unknown. */
+  date: number;
+  inf: string;
+  signed: boolean;
+  deviceId: string;
+  /** Device Manager problem code; 0 = works. */
+  problem: number;
+}
+
+export interface DriverUpdate {
+  id: string;
+  title: string;
+  manufacturer: string;
+  class: string;
+  model: string;
+  date: number;
+  sizeBytes: number;
+}
+
+export interface DriverInstallResult {
+  reboot: boolean;
+  items: { id: string; title: string; code: number; hresult: number }[];
+}
+
+export interface WingetInfo {
+  id: string;
+  source: string;
+  description?: string | null;
+  homepage?: string | null;
+  tags: string[];
+  fields: { label: string; value: string }[];
+}
+
 export interface WingetUpdate {
   name: string;
   id: string;

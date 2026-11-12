@@ -19,6 +19,7 @@ export type LogScope =
   | "disk"
   | "updates"
   | "backups"
+  | "drivers"
   | "system";
 
 export interface LogEntry {

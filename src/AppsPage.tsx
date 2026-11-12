@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { api } from "./api";
 import { formatDate, formatSize, useI18n, type Key } from "./i18n";
-import type { AppInfo, WingetUpdate } from "./types";
+import type { AppInfo, WingetInfo, WingetUpdate } from "./types";
+import { getPref } from "./prefs";
 import { AppIcon, Icon, Skeleton, Spinner } from "./ui";
 import { log } from "./log";
 
@@ -562,7 +563,115 @@ function Details({
         <Prop label={t("pRegistry")} value={app.registryKey} mono copy />
         <Prop label={t("pPackage")} value={app.packageFullName} mono copy />
       </dl>
+
+      <OnlineInfo app={app} wingetId={update?.id} />
     </aside>
+  );
+}
+
+/** Lookups are cached for the session: switching back and forth costs nothing. */
+const infoCache = new Map<string, WingetInfo | null>();
+let wingetMissing = false;
+
+const isUrl = (v: string) => /^https?:\/\/\S+$/i.test(v.trim());
+const hostOf = (v: string) => {
+  try {
+    return new URL(v).host.replace(/^www\./, "");
+  } catch {
+    return v;
+  }
+};
+
+/** What the winget catalogue knows about the selected program. */
+function OnlineInfo({ app, wingetId }: { app: AppInfo; wingetId?: string }) {
+  const { t } = useI18n();
+  const enabled = getPref("onlineInfo", true) && !wingetMissing;
+  const [info, setInfo] = useState<WingetInfo | null | "loading">(() =>
+    infoCache.has(app.id) ? (infoCache.get(app.id) ?? null) : "loading",
+  );
+  const [more, setMore] = useState(false);
+
+  useEffect(() => {
+    if (!enabled || infoCache.has(app.id)) return;
+    let dead = false;
+    // Wait a moment so running through the list with the arrows sends nothing.
+    const timer = setTimeout(async () => {
+      log.cmd("system", t("lgOnlineLookup", { name: app.name }));
+      try {
+        const res = await api.wingetInfo(app.name, wingetId);
+        infoCache.set(app.id, res);
+        if (res) log.ok("system", t("lgOnlineFound", { id: res.id }));
+        else log.info("system", t("lgOnlineNone", { name: app.name }));
+        if (!dead) setInfo(res);
+      } catch (e) {
+        if (String(e) === "missing") wingetMissing = true;
+        else log.err("system", t("lgError", { error: String(e) }));
+        if (!dead) setInfo(null);
+      }
+    }, 450);
+    return () => {
+      dead = true;
+      clearTimeout(timer);
+    };
+  }, [app.id]);
+
+  if (!enabled && !infoCache.has(app.id)) return null;
+
+  const link = (url: string) => (
+    <button className="link" title={url} onClick={() => api.openUrl(url).catch(() => {})}>
+      <Icon name="open_in_new" />
+      {hostOf(url)}
+    </button>
+  );
+
+  return (
+    <section className="online">
+      <h3 className="online-title">
+        <Icon name="globe" />
+        {t("onlineTitle")}
+      </h3>
+      {info === "loading" ? (
+        <div className="online-loading" aria-busy="true">
+          <span className="sk sk-line" style={{ width: "90%" }} />
+          <span className="sk sk-line" style={{ width: "70%" }} />
+          <span className="sk sk-line thin" style={{ width: "50%" }} />
+        </div>
+      ) : info === null ? (
+        <p className="online-none">{t("onlineNone")}</p>
+      ) : (
+        <>
+          {info.description && (
+            <p
+              className={`online-desc ${more ? "open" : ""}`}
+              title={more ? undefined : t("onlineMore")}
+              onClick={() => setMore((m) => !m)}
+            >
+              {info.description}
+            </p>
+          )}
+          <dl className="props">
+            {info.homepage && <Prop label={t("onlineSite")} value={null} action={link(info.homepage)} />}
+            {info.fields.map((f) =>
+              isUrl(f.value) ? (
+                <Prop key={f.label} label={f.label} value={null} action={link(f.value)} />
+              ) : (
+                <Prop key={f.label} label={f.label} value={f.value} />
+              ),
+            )}
+          </dl>
+          {info.tags.length > 0 && (
+            <div className="tweak-tags online-tags">
+              {info.tags.map((tag) => (
+                <span className="badge" key={tag}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="online-src">{t("onlineSource", { id: info.id })}</div>
+        </>
+      )}
+    </section>
   );
 }
 

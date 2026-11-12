@@ -2997,3 +2997,79 @@ pre.output {
     display: none;
   }
 }
+
+/* ------------------------------------------- program info from winget */
+
+.online {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--divider);
+  animation: fade 0.2s;
+}
+
+.online-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.online-title .icon {
+  color: var(--primary);
+  font-size: 16px;
+}
+
+.online-desc {
+  cursor: pointer;
+  margin: 0 0 10px;
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 19px;
+}
+
+.online-none {
+  margin: 0;
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.online-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.online-tags {
+  margin-top: 8px;
+}
+
+.online-src {
+  margin-top: 10px;
+  color: var(--text-3);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------- drivers */
+
+.drv-search {
+  flex: 0 1 260px;
+  min-width: 160px;
+}
+
+.warn-icon {
+  color: #e8a33d;
+}
+
+.sc-drivers {
+  color: #16c60c;
+}
+
+.online-desc:not(.open) {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

@@ -1,6 +1,14 @@
 # Changelog
 
-## 0.5.1
+## 0.6.0
+
+### New: Drivers
+
+- A new **Drivers** page. **Updates** come only from Windows Update (drivers Microsoft has tested and signed); pick the ones to install, a restore point is made first, and every driver's result and a restart notice are shown. **Installed** lists every device by category with maker, driver version, date and INF, with Main / Third-party / All filters and search; unsigned and very old drivers are marked. **Problems** lists devices Device Manager reports an error for, with the code explained. **Back up drivers** exports every third-party driver package to Documents\Sweepr with pnputil. A button opens Device Manager. Everything goes to the log.
+
+### New: program info from the internet
+
+- The details pane of a program shows what the winget catalogue (Microsoft) knows about it: description, publisher, website, licence, support and release-notes links, tags, and the catalogue id. Only the program's name (or its winget id) is sent, after a short pause so scrolling through the list sends nothing. Results are cached for the session. Settings → "Look up programs on the internet" turns it off.
 
 ### Fixed
 

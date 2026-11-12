@@ -11,18 +11,39 @@ import StartupPage from "./StartupPage";
 import CleanupPage from "./CleanupPage";
 import RecoveryPage from "./RecoveryPage";
 import LogPage from "./LogPage";
+import DriversPage from "./DriversPage";
 import TweaksPage from "./TweaksPage";
 import SettingsPage, { type ThemePref } from "./SettingsPage";
 import DiskView from "./DiskView";
 
-type View = "apps" | "startup" | "cleanup" | "disk" | "tweaks" | "recovery" | "log" | "settings";
-const VIEWS: View[] = ["apps", "startup", "cleanup", "disk", "tweaks", "recovery", "log", "settings"];
+type View =
+  | "apps"
+  | "startup"
+  | "cleanup"
+  | "disk"
+  | "drivers"
+  | "tweaks"
+  | "recovery"
+  | "log"
+  | "settings";
+const VIEWS: View[] = [
+  "apps",
+  "startup",
+  "cleanup",
+  "disk",
+  "drivers",
+  "tweaks",
+  "recovery",
+  "log",
+  "settings",
+];
 
 const NAV: [View, string, Key][] = [
   ["apps", "apps", "viewApps"],
   ["startup", "rocket", "navStartup"],
   ["cleanup", "delete_sweep", "navCleanup"],
   ["disk", "donut_large", "viewDisk"],
+  ["drivers", "developer_board", "navDrivers"],
   ["tweaks", "tune", "tweaks"],
   ["recovery", "history", "navRecovery"],
   ["log", "terminal", "navLog"],
@@ -184,6 +205,9 @@ export default function App() {
           )}
           {view === "recovery" && (
             <RecoveryPage elevated={elevated} onRestartAdmin={restartAdmin} />
+          )}
+          {view === "drivers" && (
+            <DriversPage elevated={elevated} onRestartAdmin={restartAdmin} />
           )}
           {view === "log" && <LogPage />}
           {view === "settings" && (

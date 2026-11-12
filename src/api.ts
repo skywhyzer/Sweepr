@@ -5,6 +5,9 @@ import type {
   DeleteReport,
   DiskDeleteResult,
   DiskItem,
+  DriverInfo,
+  DriverInstallResult,
+  DriverUpdate,
   Drive,
   ExtStat,
   Leftover,
@@ -16,6 +19,7 @@ import type {
   ScanResult,
   StartupItem,
   TweakInfo,
+  WingetInfo,
   WingetUpdate,
   CleanCategory,
   CleanResult,
@@ -45,6 +49,15 @@ export const api = {
   runRepair: (id: string) => invoke<RepairResult>("run_repair", { id }),
 
   wingetUpdates: () => invoke<WingetUpdate[]>("winget_updates"),
+  listDrivers: () => invoke<DriverInfo[]>("list_drivers"),
+  scanDriverUpdates: () => invoke<DriverUpdate[]>("scan_driver_updates"),
+  installDriverUpdates: (ids: string[]) =>
+    invoke<DriverInstallResult>("install_driver_updates", { ids }),
+  exportDrivers: () => invoke<{ folder: string; output: string }>("export_drivers"),
+  openDeviceManager: () => invoke<void>("open_device_manager"),
+  wingetInfo: (name: string, id?: string) =>
+    invoke<WingetInfo | null>("winget_info", { name, id: id ?? null }),
+  openUrl: (url: string) => invoke<void>("open_url", { url }),
   wingetUpgrade: (id: string) => invoke<string>("winget_upgrade", { id }),
   listWin32: () => invoke<AppInfo[]>("list_win32_apps"),
   listStore: () => invoke<AppInfo[]>("list_store_apps"),

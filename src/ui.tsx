@@ -54,6 +54,15 @@ import i_usb_stick from "@fluentui/svg-icons/icons/usb_stick_20_regular.svg?raw"
 import i_warning from "@fluentui/svg-icons/icons/warning_20_regular.svg?raw";
 import i_weather_moon from "@fluentui/svg-icons/icons/weather_moon_20_regular.svg?raw";
 import i_weather_sunny from "@fluentui/svg-icons/icons/weather_sunny_20_regular.svg?raw";
+import i_desktop from "@fluentui/svg-icons/icons/desktop_20_regular.svg?raw";
+import i_wifi from "@fluentui/svg-icons/icons/wifi_1_20_regular.svg?raw";
+import i_speaker from "@fluentui/svg-icons/icons/speaker_2_20_regular.svg?raw";
+import i_bluetooth from "@fluentui/svg-icons/icons/bluetooth_20_regular.svg?raw";
+import i_keyboard from "@fluentui/svg-icons/icons/keyboard_20_regular.svg?raw";
+import i_camera from "@fluentui/svg-icons/icons/camera_20_regular.svg?raw";
+import i_print from "@fluentui/svg-icons/icons/print_20_regular.svg?raw";
+import i_save from "@fluentui/svg-icons/icons/save_20_regular.svg?raw";
+import i_globe from "@fluentui/svg-icons/icons/globe_20_regular.svg?raw";
 import i_window_console from "@fluentui/svg-icons/icons/window_console_20_regular.svg?raw";
 import i_zoom_in from "@fluentui/svg-icons/icons/zoom_in_20_regular.svg?raw";
 import i_zoom_out from "@fluentui/svg-icons/icons/zoom_out_20_regular.svg?raw";
@@ -117,6 +126,16 @@ const ICONS: Record<string, string> = {
   undo: i_arrow_undo,
   usb: i_usb_stick,
   warning: i_warning,
+  developer_board: i_developer_board,
+  desktop: i_desktop,
+  wifi: i_wifi,
+  speaker: i_speaker,
+  bluetooth: i_bluetooth,
+  keyboard: i_keyboard,
+  camera: i_camera,
+  print: i_print,
+  save: i_save,
+  globe: i_globe,
   terminal: i_window_console,
   zoom_in: i_zoom_in,
   zoom_out: i_zoom_out,

@@ -2,6 +2,7 @@ mod apps;
 mod cleanup;
 mod disk;
 mod disktree;
+mod drivers;
 mod icons;
 mod leftovers;
 mod look;
@@ -66,6 +67,21 @@ fn open_location(path: String) -> Result<(), String> {
     cmd.spawn().map(|_| ()).map_err(|e| e.to_string())
 }
 
+/// Open a web page in the default browser. Only plain http(s) links.
+#[tauri::command]
+fn open_url(url: String) -> Result<(), String> {
+    let u = url.trim();
+    let ok_scheme = u.starts_with("https://") || u.starts_with("http://");
+    if !ok_scheme || u.len() > 2000 || u.chars().any(|c| c.is_whitespace() || c.is_control() || c == '"') {
+        return Err("bad url".into());
+    }
+    std::process::Command::new("explorer.exe")
+        .arg(u)
+        .spawn()
+        .map(|_| ())
+        .map_err(|e| e.to_string())
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -87,6 +103,7 @@ pub fn run() {
             restart_as_admin,
             look::system_look,
             open_location,
+            open_url,
             startup::list_startup,
             startup::set_startup,
             startup::remove_startup,
@@ -102,6 +119,12 @@ pub fn run() {
             repair::run_repair,
             winget::winget_updates,
             winget::winget_upgrade,
+            winget::winget_info,
+            drivers::list_drivers,
+            drivers::scan_driver_updates,
+            drivers::install_driver_updates,
+            drivers::export_drivers,
+            drivers::open_device_manager,
             apps::list_win32_apps,
             apps::list_store_apps,
             icons::get_icon,

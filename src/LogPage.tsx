@@ -9,6 +9,7 @@ const FILTERS: [string, Key, LogScope[] | null][] = [
   ["restore", "logRestore", ["restore", "backups"]],
   ["clean", "logClean", ["cleanup", "disk"]],
   ["repair", "logRepair", ["repair"]],
+  ["drivers", "navDrivers", ["drivers"]],
   ["system", "logSystem", ["startup", "tweaks", "system"]],
 ];
 

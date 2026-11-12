@@ -26,6 +26,7 @@ export default function SettingsPage({
   const { t, lang } = useI18n();
   const [version, setVersion] = useState("");
   const [autoRestore, setAutoRestore] = useState(() => getPref("autoRestore", true));
+  const [onlineInfo, setOnlineInfo] = useState(() => getPref("onlineInfo", true));
 
   useEffect(() => {
     getVersion()
@@ -91,6 +92,26 @@ export default function SettingsPage({
               onClick={() => {
                 setPref("autoRestore", !autoRestore);
                 setAutoRestore(!autoRestore);
+              }}
+            >
+              <span />
+            </button>
+          </div>
+
+          <div className="card-row">
+            <Icon name="globe" className="card-icon" />
+            <div className="tweak-main">
+              <div className="row-name">{t("onlineSetting")}</div>
+              <div className="row-sub wrap">{t("onlineSettingDesc")}</div>
+            </div>
+            <button
+              role="switch"
+              aria-checked={onlineInfo}
+              aria-label={t("onlineSetting")}
+              className={`switch ${onlineInfo ? "on" : ""}`}
+              onClick={() => {
+                setPref("onlineInfo", !onlineInfo);
+                setOnlineInfo(!onlineInfo);
               }}
             >
               <span />

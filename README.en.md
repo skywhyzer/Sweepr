@@ -18,7 +18,7 @@ English · [Русский](README.md)
 
 ## What Sweepr does
 
-A navigation pane on the left: **Programs · Startup · Clean-up · Disk · Tweaks · Recovery · Log**, with **Settings** at the bottom.
+A navigation pane on the left: **Programs · Startup · Clean-up · Disk · Drivers · Tweaks · Recovery · Log**, with **Settings** at the bottom.
 
 ### Programs
 
@@ -26,6 +26,7 @@ A navigation pane on the left: **Programs · Startup · Clean-up · Disk · Twea
 - **Clean uninstall.** The program's own uninstaller runs first, then Sweepr scans for leftover files, folders and registry entries. Every leftover is shown with the reason it was found and removed only after you confirm.
 - **Force removal** for broken or missing uninstallers: skips the uninstaller and removes the traces directly.
 - **Updates through winget.** If winget is installed, the list shows which programs have a newer version; update one program or all of them.
+- **Info from the internet.** For the selected program Sweepr looks it up in the winget catalogue (Microsoft) and shows its description, publisher, website, licence and tags. Only the program's name is sent; you can turn it off in Settings.
 - **Works like File Explorer.** Details pane (version, size, location, uninstall command, registry key), context menu, full keyboard control: arrows, type-ahead, `Enter` / `Delete` to uninstall, `Ctrl+F` / `F3` to search.
 - Instant search, filters and sorting by name, size or date.
 
@@ -43,6 +44,13 @@ A navigation pane on the left: **Programs · Startup · Clean-up · Disk · Twea
 ### Disk
 
 A WinDirStat-style usage analyzer: scan a drive or folder and see a folder tree with share bars, a colored treemap (with zoom) and statistics by file type. Largest files list, open or show in Explorer, move to the Recycle Bin or delete permanently right from the view.
+
+### Drivers
+
+- **Updates** come only from Windows Update: drivers Microsoft has tested and signed, nothing from third-party sites. Pick which ones to install; a restore point is created first.
+- **Installed:** every device by category (display, network, sound, Bluetooth, USB…), with maker, driver version and date; "Main", "Third-party" and "All" filters and search.
+- **Problems:** devices Device Manager reports an error for, with the code explained in words.
+- **Driver backup** in one click: every third-party driver is copied to Documents\Sweepr, to put back after a reinstall or a bad update.
 
 ### Tweaks
 
