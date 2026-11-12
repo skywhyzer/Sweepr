@@ -1084,18 +1084,8 @@ input[type="checkbox"]:disabled {
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* Accent pill under the selected segment */
-.seg button.on::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: 1px;
-  width: 16px;
-  height: 3px;
-  margin-left: -8px;
-  border-radius: 2px;
-  background: var(--primary);
-  animation: pill 0.25s var(--ease);
+.seg button.on {
+  font-weight: 600;
 }
 
 .seg .icon {
@@ -1274,6 +1264,7 @@ input[type="checkbox"]:disabled {
 
 .disk-tree {
   flex: 1;
+  container: disktree / inline-size;
 }
 
 .disk-side {
@@ -1345,7 +1336,7 @@ input[type="checkbox"]:disabled {
 
 .c-name {
   flex: 1;
-  min-width: 0;
+  min-width: 150px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -2979,4 +2970,30 @@ pre.output {
   width: 100%;
   max-width: 1160px;
   margin-inline: auto;
+}
+
+/* The tree keeps its name column readable: narrow panes drop the minor
+   columns one by one (modified, files, then the share bar). */
+@container disktree (max-width: 680px) {
+  .tree-head .c-date,
+  .tree-row .c-date {
+    display: none;
+  }
+}
+
+@container disktree (max-width: 560px) {
+  .tree-head .c-files,
+  .tree-row .c-files {
+    display: none;
+  }
+}
+
+@container disktree (max-width: 430px) {
+  .tree-head .c-share,
+  .tree-row .c-share {
+    width: 44px;
+  }
+  .tree-row .share-bar {
+    display: none;
+  }
 }

@@ -19,32 +19,32 @@ export interface Tile extends Rect {
  * the Fluent UI around them instead of a screen of neon.
  */
 const PALETTE_DARK = [
-  "#5b8def",
-  "#ee6f73",
-  "#4cc38a",
-  "#3db8d6",
-  "#c47ad8",
-  "#e6bd4d",
-  "#f0994f",
-  "#8f7df2",
-  "#98c94f",
-  "#ec80b2",
-  "#3fbfae",
-  "#b98d66",
+  "#6d8fd0",
+  "#cf7a80",
+  "#68ae8c",
+  "#62aebf",
+  "#b08cc2",
+  "#c9b068",
+  "#cf9a68",
+  "#8f88cf",
+  "#9db868",
+  "#cc8bb0",
+  "#5eaea3",
+  "#a58b72",
 ];
 const PALETTE_LIGHT = [
-  "#3b74e8",
-  "#dc4f55",
-  "#2e9e68",
-  "#1b9bbd",
-  "#a85cc0",
-  "#cf9f1f",
-  "#e07b2b",
-  "#6e5ce6",
-  "#74a01c",
-  "#d9588d",
-  "#17917f",
-  "#9a6c45",
+  "#5079c2",
+  "#c0606a",
+  "#4a9874",
+  "#3f9bb2",
+  "#9a6daa",
+  "#b39a45",
+  "#c0804a",
+  "#7469c0",
+  "#7d9d45",
+  "#bd6e94",
+  "#3f9689",
+  "#8a6e56",
 ];
 export const OTHER_EXT_COLOR = "#8b939c";
 export const FOLDER_COLOR = "#6b7480";
@@ -150,7 +150,7 @@ function tileColor(t: Tile, colors: Map<string, string>): string {
 }
 
 function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
-  const r = Math.max(0, Math.min(5, w / 4, h / 4));
+  const r = Math.max(0, Math.min(3, w / 4, h / 4));
   ctx.beginPath();
   if (r < 1) ctx.rect(x, y, w, h);
   else ctx.roundRect(x, y, w, h, r);
@@ -195,17 +195,10 @@ export function draw(ctx: CanvasRenderingContext2D, tiles: Tile[], opts: DrawOpt
     ctx.fill();
     if (w > 4 && h > 4) {
       const g = ctx.createLinearGradient(x, y, x, y + h);
-      g.addColorStop(0, "rgba(255,255,255,0.16)");
-      g.addColorStop(0.55, "rgba(255,255,255,0)");
-      g.addColorStop(1, "rgba(0,0,0,0.14)");
+      g.addColorStop(0, "rgba(255,255,255,0.07)");
+      g.addColorStop(1, "rgba(0,0,0,0.10)");
       ctx.fillStyle = g;
       ctx.fill();
-    }
-    if (w > 10 && h > 10) {
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = "rgba(255,255,255,0.16)";
-      roundedRect(ctx, x + 0.5, y + 0.5, w - 1, h - 1);
-      ctx.stroke();
     }
     ctx.globalAlpha = 1;
   }
@@ -258,7 +251,7 @@ export function draw(ctx: CanvasRenderingContext2D, tiles: Tile[], opts: DrawOpt
   // 4. Selection: a bright ring with a dark halo so it shows on any colour.
   if (selected !== null) {
     const s = tiles.find((t) => t.node.id === selected);
-    if (s && s.w > 3 && s.h > 3) {
+    if (s && s.depth > 0 && s.w > 3 && s.h > 3) {
       const x = s.x + GAP;
       const y = s.y + GAP;
       const w = s.w - GAP * 2;

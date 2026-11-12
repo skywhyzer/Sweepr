@@ -6,6 +6,8 @@
 
 - Large and full-screen windows: pages made of cards (Startup, Clean-up, Tweaks, Recovery, Log, Settings) are now one centred column, so the heading, the buttons and the list line up instead of the list stopping short while the buttons sat at the far edge. Programs and Disk still use the whole window.
 - The window can no longer be made smaller than 900 x 600, so nothing gets squeezed or overlaps; command bars with many buttons wrap onto a second line instead of running over each other.
+- Disk: in a narrow window the tree no longer squeezes the name column to nothing (the share bar used to run over names and icons); the modified, files and share-bar columns drop out one by one instead. The treemap has calmer, less saturated colours, softer tiles and no ring around the whole map.
+- The accent underline under the active tab is gone; the active tab is shown by its raised background and a heavier label.
 - The automatic interface zoom announced in 0.5.0 is gone: it was not in that build, and the interface now simply adapts to the window.
 
 ## 0.5.0
