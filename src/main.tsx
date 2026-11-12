@@ -1,13 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "@fontsource/roboto/400.css";
-import "@fontsource/roboto/500.css";
-import "material-symbols/rounded.css";
 import "./styles.css";
 import App from "./App";
+import { prepareWindow, revealWindow } from "./native";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+prepareWindow().finally(() => {
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+  );
+  revealWindow();
+});

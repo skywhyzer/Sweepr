@@ -26,7 +26,7 @@ English · [Русский](README.ru.md)
 - **Tweaks** — 19 reversible system tweaks (interface, privacy, gaming, updates). The previous value is saved before every change, so you can undo one tweak or all of them in a click, even after a restart; Sweepr also notices when Windows reverts a tweak.
 - **Disk usage analyzer (new in 0.2)** — a WinDirStat-style view: scan a drive or folder and see what takes up space as a sortable folder tree with share bars, a colored treemap (squarified, with cushion shading and zoom) and statistics by file type. Largest files list, open / show in Explorer, move to the Recycle Bin or delete permanently right from the view.
 - **Instant search, filters and sorting** — by name, size or date; `Ctrl+F` / `F3` focuses the search box.
-- **Light and dark themes**, Material You inspired design.
+- **Looks like Windows 11** — Fluent design with a Mica window backdrop, your Windows accent colour, Segoe UI and Fluent icons; light and dark themes.
 - **English and Russian** interface.
 - Small, native-feeling app powered by Tauri — no bundled browser.
 

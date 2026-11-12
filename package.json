@@ -9,10 +9,9 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@fontsource/roboto": "^5.2.5",
+    "@fluentui/svg-icons": "^1.1.345",
     "@tauri-apps/api": "^2.12.4",
     "@tauri-apps/plugin-dialog": "^2.2.0",
-    "material-symbols": "^0.31.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },

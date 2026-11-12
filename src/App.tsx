@@ -154,12 +154,6 @@ export default function App() {
     <I18n.Provider value={{ lang, t }}>
       <div className="shell">
         <header className="topbar">
-          <div className="brand">
-            <div className="logo">
-              <Icon name="delete_sweep" />
-            </div>
-            <span>Sweepr</span>
-          </div>
           <div className="seg views">
             <button className={view === "apps" ? "on" : ""} onClick={() => setView("apps")}>
               <Icon name="apps" />

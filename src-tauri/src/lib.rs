@@ -3,10 +3,14 @@ mod disk;
 mod disktree;
 mod icons;
 mod leftovers;
+mod look;
 mod tweaks;
 mod uninstall;
 mod util;
 
+use std::time::Duration;
+
+use tauri::Manager;
 use windows::core::{w, PCWSTR};
 use windows::Win32::UI::Shell::{IsUserAnAdmin, ShellExecuteW};
 use windows::Win32::UI::WindowsAndMessaging::SW_SHOWNORMAL;
@@ -42,9 +46,22 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(disk::DiskState::default())
+        .setup(|app| {
+            // The window starts hidden and the frontend shows it after its first
+            // paint, so there is no white flash. If the page never gets that far,
+            // show it anyway rather than leave an invisible process behind.
+            if let Some(win) = app.get_webview_window("main") {
+                std::thread::spawn(move || {
+                    std::thread::sleep(Duration::from_secs(3));
+                    let _ = win.show();
+                });
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             is_elevated,
             restart_as_admin,
+            look::system_look,
             apps::list_win32_apps,
             apps::list_store_apps,
             icons::get_icon,

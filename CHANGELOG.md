@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### Native Windows 11 look
+
+The interface has moved from a Material/Google-style design to Fluent, so Sweepr looks like part of Windows rather than a web page:
+
+- Mica backdrop behind the whole window on Windows 11, including the title bar (solid background on Windows 10).
+- Your Windows accent colour is used for buttons, selection and switches.
+- Segoe UI Variable instead of Roboto, Fluent System Icons instead of Material Symbols.
+- WinUI-style controls: buttons, text box, combo box, check boxes, toggle switches, segmented control, menus and dialogs with a footer button bar; programs are listed as cards, as in Windows Settings.
+- Thin Fluent scroll bars; arrow cursor instead of the hand cursor.
+- Browser behaviour is switched off: the WebView context menu, F5 / Ctrl+R reload, Ctrl+P print, the find bar, back/forward navigation and dragging images out.
+- The window appears only after the first paint, so there is no white flash at startup.
+
 ## 0.3.0
 
 ### New: reversible system tweaks
