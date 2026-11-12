@@ -22,7 +22,7 @@ A navigation pane on the left: **Programs · Startup · Clean-up · Disk · Twea
 
 ### Programs
 
-- One list for classic Win32 programs and Microsoft Store apps: icon, publisher, version, size, install date.
+- One list for classic programs (32-bit and 64-bit) and Microsoft Store apps: icon, publisher, version, size, install date.
 - **Clean uninstall.** The program's own uninstaller runs first, then Sweepr scans for leftover files, folders and registry entries. Every leftover is shown with the reason it was found and removed only after you confirm.
 - **Force removal** for broken or missing uninstallers: skips the uninstaller and removes the traces directly.
 - **Updates through winget.** If winget is installed, the list shows which programs have a newer version; update one program or all of them.
