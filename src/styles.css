@@ -2406,13 +2406,177 @@ input[type="checkbox"]:disabled {
   .details {
     width: 280px;
   }
-  .commandbar .summary {
+}
+
+/* The command bar gets crowded first: drop the summary, then button labels. */
+@media (max-width: 1280px) {
+  .commandbar .summary.optional {
+    display: none;
+  }
+}
+
+@media (max-width: 1180px) {
+  .commandbar .cmd > span:not(.icon) {
     display: none;
   }
 }
 
 @media (max-width: 860px) {
-  .cmd span {
+  .cmd > span:not(.icon) {
     display: none;
   }
+}
+
+/* ======================================================= new pages */
+
+/* The command line a startup entry runs */
+.cmdline {
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: text;
+}
+
+.row-links {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+/* A switched-off startup item reads dimmer, like Task Manager. */
+.card-row.off .row-name,
+.card-row.off .card-icon {
+  color: var(--text-3);
+}
+
+.card-row .card-icon {
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.card-row > input[type="checkbox"] {
+  align-self: center;
+}
+
+.clean-row.empty .row-name,
+.clean-row.empty .clean-size {
+  color: var(--text-3);
+}
+
+.clean-size {
+  flex: none;
+  min-width: 80px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.clean-total-label {
+  color: var(--text-2);
+  margin: -14px 0 12px;
+}
+
+.clean-total {
+  font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  font-size: 40px;
+  line-height: 52px;
+  font-weight: 600;
+  margin: 0 0 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.section-intro {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 1000px;
+  margin-bottom: 8px;
+}
+
+.section-intro p {
+  flex: 1;
+  margin: 0;
+  color: var(--text-2);
+}
+
+.tweak-tags .badge.ok-soft {
+  background: var(--success-container);
+  color: var(--text);
+}
+
+.tweak-tags .badge.ok-soft .icon {
+  color: var(--success);
+}
+
+pre.output {
+  margin: 4px 0 0;
+  padding: 10px 12px;
+  max-height: 220px;
+  overflow: auto;
+  white-space: pre-wrap;
+  border-radius: var(--radius);
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.expander {
+  margin: 6px 0 0;
+}
+
+.expander summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 6px;
+  margin-left: -6px;
+  border-radius: var(--radius);
+  color: var(--primary);
+  font-size: 13px;
+  list-style: none;
+}
+
+.expander summary::-webkit-details-marker {
+  display: none;
+}
+
+.expander summary:hover {
+  background: var(--hover);
+}
+
+.expander summary .icon {
+  font-size: 14px;
+  transition: transform 0.167s var(--ease);
+}
+
+.expander[open] summary .icon {
+  transform: rotate(180deg);
+}
+
+/* Update available, in the program list */
+.upd {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 8px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.upd .icon {
+  font-size: 12px;
+}
+
+.update-btn {
+  flex-basis: 100%;
+}
+
+.progress p.dim {
+  color: var(--text-3);
 }

@@ -7,7 +7,7 @@ import { Icon, Spinner } from "./ui";
 type Status = "busy" | "restored" | "failed";
 
 /** Lists registry backups made during uninstalls and restores them on request. */
-export default function BackupsPage() {
+export default function BackupsSection() {
   const { t, lang } = useI18n();
   const [list, setList] = useState<BackupInfo[] | null>(null);
   const [status, setStatus] = useState<Record<string, Status>>({});
@@ -36,18 +36,13 @@ export default function BackupsPage() {
   };
 
   return (
-    <div className="page">
-      <header className="page-head">
-        <div>
-          <h1>{t("backups")}</h1>
+    <div className="page-scroll">
+        <div className="section-intro">
           <p>{t("backupsText")}</p>
+          <button className="icon-btn" title={t("refresh")} onClick={load}>
+            <Icon name="refresh" />
+          </button>
         </div>
-        <button className="icon-btn" title={t("refresh")} onClick={load}>
-          <Icon name="refresh" />
-        </button>
-      </header>
-
-      <div className="page-scroll">
         {list === null ? (
           <div className="progress">
             <Spinner />
@@ -120,7 +115,6 @@ export default function BackupsPage() {
             ))}
           </div>
         )}
-      </div>
     </div>
   );
 }

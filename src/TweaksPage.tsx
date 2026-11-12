@@ -3,6 +3,7 @@ import { api } from "./api";
 import { useI18n, type Key } from "./i18n";
 import type { TweakInfo } from "./types";
 import { Icon, Spinner } from "./ui";
+import { safetyRestorePoint } from "./prefs";
 
 const CATEGORIES: TweakInfo["category"][] = [
   "interface",
@@ -268,9 +269,13 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
               <button
                 className="btn danger"
                 autoFocus
-                onClick={() => {
+                onClick={async () => {
                   const tw = confirm;
                   setConfirm(null);
+                  setBusy(tw.id);
+                  setNote(t("stepRestorePoint"));
+                  await safetyRestorePoint(`Sweepr: ${t(`tw_${tw.id}` as Key)}`);
+                  setNote(null);
                   toggle(tw, true);
                 }}
               >

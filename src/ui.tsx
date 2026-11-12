@@ -4,6 +4,14 @@ import type { AppInfo } from "./types";
 import i_navigation from "@fluentui/svg-icons/icons/navigation_20_regular.svg?raw";
 import i_settings from "@fluentui/svg-icons/icons/settings_20_regular.svg?raw";
 import i_dark_theme from "@fluentui/svg-icons/icons/dark_theme_20_regular.svg?raw";
+import i_rocket from "@fluentui/svg-icons/icons/rocket_20_regular.svg?raw";
+import i_wrench from "@fluentui/svg-icons/icons/wrench_20_regular.svg?raw";
+import i_arrow_sync from "@fluentui/svg-icons/icons/arrow_sync_20_regular.svg?raw";
+import i_calendar_clock from "@fluentui/svg-icons/icons/calendar_clock_20_regular.svg?raw";
+import i_settings_cog_multiple from "@fluentui/svg-icons/icons/settings_cog_multiple_20_regular.svg?raw";
+import i_shield_checkmark from "@fluentui/svg-icons/icons/shield_checkmark_20_regular.svg?raw";
+import i_arrow_counterclockwise_dashes from "@fluentui/svg-icons/icons/arrow_counterclockwise_dashes_20_regular.svg?raw";
+import i_add from "@fluentui/svg-icons/icons/add_20_regular.svg?raw";
 import i_apps from "@fluentui/svg-icons/icons/apps_20_regular.svg?raw";
 import i_arrow_clockwise from "@fluentui/svg-icons/icons/arrow_clockwise_20_regular.svg?raw";
 import i_arrow_left from "@fluentui/svg-icons/icons/arrow_left_20_regular.svg?raw";
@@ -53,6 +61,14 @@ import i_zoom_out from "@fluentui/svg-icons/icons/zoom_out_20_regular.svg?raw";
  * Material Symbols names the rest of the app was written with.
  */
 const ICONS: Record<string, string> = {
+  add: i_add,
+  restore: i_arrow_counterclockwise_dashes,
+  shield_ok: i_shield_checkmark,
+  service: i_settings_cog_multiple,
+  schedule: i_calendar_clock,
+  update: i_arrow_sync,
+  build: i_wrench,
+  rocket: i_rocket,
   palette: i_dark_theme,
   settings: i_settings,
   menu: i_navigation,

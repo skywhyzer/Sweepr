@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getVersion } from "@tauri-apps/api/app";
 import { useI18n, type Lang } from "./i18n";
 import { Icon } from "./ui";
+import { getPref, setPref } from "./prefs";
 import logo from "../app-icon.png";
 
 export type ThemePref = "light" | "dark" | "system";
@@ -24,6 +25,7 @@ export default function SettingsPage({
 }: Props) {
   const { t, lang } = useI18n();
   const [version, setVersion] = useState("");
+  const [autoRestore, setAutoRestore] = useState(() => getPref("autoRestore", true));
 
   useEffect(() => {
     getVersion()
@@ -72,6 +74,27 @@ export default function SettingsPage({
               <option value="ru">Русский</option>
               <option value="en">English</option>
             </select>
+          </div>
+
+          <h3 className="tweak-cat">{t("safety")}</h3>
+          <div className="card-row">
+            <Icon name="restore" className="card-icon" />
+            <div className="tweak-main">
+              <div className="row-name">{t("autoRestore")}</div>
+              <div className="row-sub wrap">{t("autoRestoreDesc")}</div>
+            </div>
+            <button
+              role="switch"
+              aria-checked={autoRestore}
+              aria-label={t("autoRestore")}
+              className={`switch ${autoRestore ? "on" : ""}`}
+              onClick={() => {
+                setPref("autoRestore", !autoRestore);
+                setAutoRestore(!autoRestore);
+              }}
+            >
+              <span />
+            </button>
           </div>
 
           <h3 className="tweak-cat">{t("admin")}</h3>

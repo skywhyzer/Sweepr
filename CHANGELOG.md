@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### New: startup, clean-up, recovery and program updates
+
+Sweepr becomes a toolkit to keep on the PC for when something goes wrong. The navigation pane now reads: Programs · Startup · Clean-up · Disk · Tweaks · Recovery.
+
+- **Startup** — one list of Run keys, Startup-folder shortcuts, sign-in/boot scheduled tasks and third-party automatic services, with publisher, description and command line, filters (enabled, disabled, broken) and search. Turning an item off never deletes it: Run keys and shortcuts use Task Manager's `StartupApproved` flags, tasks are disabled, services move to manual start with the original mode kept in a journal. Entries whose program no longer exists are flagged and can be removed (registry backup / Recycle Bin).
+- **Clean-up → Junk files** — ten categories measured before anything is removed: temporary files (older than a day), Windows temp, Windows Update cache, Delivery Optimization, crash dumps, error reports, shader cache, browser caches (Chrome, Edge, Firefox, Yandex, Brave, Opera, Vivaldi), Recycle Bin; Windows.old is left to Windows' own Settings page. Links and junctions are never followed.
+- **Clean-up → Leftovers of removed programs** — folders in Program Files, ProgramData and AppData and vendor keys in HKCU\Software that match no installed program, aren't used by any startup entry or service and haven't changed for 30 days. Nothing is preselected; deletion goes to the Recycle Bin with a registry backup.
+- **Recovery** — restore points (list, create, turn System Protection on, open the System Restore wizard), registry backups (moved here from their own page), and repair actions: sfc, DISM RestoreHealth, component store clean-up, network reset, DNS flush, Windows Update reset (caches are renamed, not deleted), icon cache rebuild, Explorer restart.
+- **Automatic restore point** before uninstalling a program and before a high-risk tweak (Settings → Safety; on by default, needs administrator rights).
+- **Program updates** through winget: an "Updates" filter, the available version in the list and details pane, update one program or all.
+
 ### Native Windows 11 look
 
 The interface has moved from a Material/Google-style design to Fluent, so Sweepr looks like part of Windows rather than a web page:

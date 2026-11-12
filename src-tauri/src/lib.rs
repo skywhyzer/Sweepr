@@ -1,12 +1,18 @@
 mod apps;
+mod cleanup;
 mod disk;
 mod disktree;
 mod icons;
 mod leftovers;
 mod look;
+mod orphans;
+mod repair;
+mod restore;
+mod startup;
 mod tweaks;
 mod uninstall;
 mod util;
+mod winget;
 
 use std::time::Duration;
 
@@ -81,6 +87,20 @@ pub fn run() {
             restart_as_admin,
             look::system_look,
             open_location,
+            startup::list_startup,
+            startup::set_startup,
+            startup::remove_startup,
+            cleanup::scan_cleanup,
+            cleanup::run_cleanup,
+            cleanup::open_storage_settings,
+            orphans::scan_orphans,
+            restore::restore_status,
+            restore::create_restore_point,
+            restore::enable_system_protection,
+            restore::open_system_restore,
+            repair::run_repair,
+            winget::winget_updates,
+            winget::winget_upgrade,
             apps::list_win32_apps,
             apps::list_store_apps,
             icons::get_icon,

@@ -76,7 +76,7 @@ fn blocked(n: &str) -> bool {
 
 /// Product name without version numbers and architecture tags:
 /// "7-Zip 24.08 (x64)" -> "7-Zip".
-fn base_name(name: &str) -> String {
+pub(crate) fn base_name(name: &str) -> String {
     let mut plain = String::new();
     let mut depth = 0;
     for c in name.chars() {

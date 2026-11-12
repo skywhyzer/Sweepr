@@ -3,9 +3,11 @@ import { api } from "./api";
 import { formatSize, useI18n, type Key } from "./i18n";
 import type { AppInfo, DeleteReport, Leftover } from "./types";
 import { AppIcon, Icon, Spinner } from "./ui";
+import { safetyRestorePoint } from "./prefs";
 
 type Phase =
   | "confirm"
+  | "restorePoint"
   | "uninstalling"
   | "stuck"
   | "scanning"
@@ -127,6 +129,11 @@ export default function UninstallDialog({
   };
 
   const start = async () => {
+    // A restore point first, so even a broken uninstaller can be rolled back.
+    const before = ++run.current;
+    setPhase("restorePoint");
+    await safetyRestorePoint(`Sweepr: ${app.name}`);
+    if (before !== run.current) return;
     if (forced) return scan(true);
     const id = ++run.current;
     changed.current = true;
@@ -199,7 +206,7 @@ export default function UninstallDialog({
   const selected = found.filter((l) => checked.has(itemKey(l)));
   const allChecked = found.length > 0 && selected.length === found.length;
   const selectedSize = selected.reduce((sum, l) => sum + l.sizeBytes, 0);
-  const busy = phase === "scanning" || phase === "cleaning";
+  const busy = phase === "scanning" || phase === "cleaning" || phase === "restorePoint";
   const close = () => {
     run.current++;
     onClose(changed.current);
@@ -240,6 +247,14 @@ export default function UninstallDialog({
           </>
         )}
 
+        {phase === "restorePoint" && (
+          <div className="progress">
+            <Spinner />
+            <h2>{t("stepRestorePoint")}</h2>
+            <p>{t("stepRestorePointHint")}</p>
+          </div>
+        )}
+
         {phase === "uninstalling" && (
           <>
             <div className="progress">
@@ -257,7 +272,7 @@ export default function UninstallDialog({
           </>
         )}
 
-        {busy && (
+        {(phase === "scanning" || phase === "cleaning") && (
           <div className="progress">
             <Spinner />
             <h2>{t(phase === "scanning" ? "stepScan" : "stepClean")}</h2>

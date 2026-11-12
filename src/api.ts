@@ -9,14 +9,40 @@ import type {
   ExtStat,
   Leftover,
   MapNode,
+  Orphan,
+  RepairResult,
+  RestoreStatus,
   ScanResult,
+  StartupItem,
   TweakInfo,
+  WingetUpdate,
+  CleanCategory,
+  CleanResult,
 } from "./types";
 
 export const api = {
   isElevated: () => invoke<boolean>("is_elevated"),
   restartAsAdmin: () => invoke<void>("restart_as_admin"),
   openLocation: (path: string) => invoke<void>("open_location", { path }),
+
+  listStartup: () => invoke<StartupItem[]>("list_startup"),
+  setStartup: (id: string, enabled: boolean) => invoke<void>("set_startup", { id, enabled }),
+  removeStartup: (id: string, name: string) => invoke<void>("remove_startup", { id, name }),
+
+  scanCleanup: () => invoke<CleanCategory[]>("scan_cleanup"),
+  runCleanup: (ids: string[]) => invoke<CleanResult[]>("run_cleanup", { ids }),
+  openStorageSettings: () => invoke<void>("open_storage_settings"),
+  scanOrphans: () => invoke<Orphan[]>("scan_orphans"),
+
+  restoreStatus: () => invoke<RestoreStatus>("restore_status"),
+  createRestorePoint: (description: string) =>
+    invoke<void>("create_restore_point", { description }),
+  enableSystemProtection: () => invoke<void>("enable_system_protection"),
+  openSystemRestore: () => invoke<void>("open_system_restore"),
+  runRepair: (id: string) => invoke<RepairResult>("run_repair", { id }),
+
+  wingetUpdates: () => invoke<WingetUpdate[]>("winget_updates"),
+  wingetUpgrade: (id: string) => invoke<string>("winget_upgrade", { id }),
   listWin32: () => invoke<AppInfo[]>("list_win32_apps"),
   listStore: () => invoke<AppInfo[]>("list_store_apps"),
   getIcon: (path: string) => invoke<string | null>("get_icon", { path }),

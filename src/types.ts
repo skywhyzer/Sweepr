@@ -120,3 +120,66 @@ export interface DiskDeleteResult {
   freed: number;
   failed: { path: string; error: string }[];
 }
+
+export interface StartupItem {
+  id: string;
+  source: "run" | "folder" | "task" | "service";
+  name: string;
+  command: string;
+  path: string | null;
+  publisher: string | null;
+  description: string | null;
+  location: string;
+  enabled: boolean;
+  needsAdmin: boolean;
+  missing: boolean;
+}
+
+export interface CleanCategory {
+  id: string;
+  sizeBytes: number;
+  files: number;
+  needsAdmin: boolean;
+  partial: boolean;
+  manual: boolean;
+  paths: string[];
+}
+
+export interface CleanResult {
+  id: string;
+  freedBytes: number;
+  skipped: number;
+}
+
+export interface Orphan {
+  kind: "dir" | "regkey";
+  path: string;
+  name: string;
+  root: "programFiles" | "programData" | "appData" | "localAppData" | "registry";
+  sizeBytes: number;
+  modified: number;
+}
+
+export interface RestorePoint {
+  sequence: number;
+  description: string;
+  created: number;
+}
+
+export interface RestoreStatus {
+  enabled: boolean;
+  points: RestorePoint[];
+}
+
+export interface RepairResult {
+  ok: boolean;
+  output: string;
+  reboot: boolean;
+}
+
+export interface WingetUpdate {
+  name: string;
+  id: string;
+  version: string;
+  available: string;
+}

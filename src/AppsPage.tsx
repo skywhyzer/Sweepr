@@ -1,10 +1,10 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { api } from "./api";
 import { formatDate, formatSize, useI18n, type Key } from "./i18n";
-import type { AppInfo } from "./types";
+import type { AppInfo, WingetUpdate } from "./types";
 import { AppIcon, Icon, Spinner } from "./ui";
 
-type Filter = "all" | "win32" | "store";
+type Filter = "all" | "win32" | "store" | "updates";
 type Sort = "name" | "size" | "date";
 
 interface Props {
@@ -16,6 +16,27 @@ interface Props {
   onUninstall: (app: AppInfo, force: boolean) => void;
   onForceFolder: () => void;
   onRestartAdmin: () => void;
+  /** Newer versions winget knows about (empty when winget is missing). */
+  updates: WingetUpdate[];
+  onUpdated: () => void;
+}
+
+const normName = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+
+/** Link winget rows to installed programs by name; winget cuts long names with "…". */
+function matchUpdates(apps: AppInfo[], ups: WingetUpdate[]): Map<string, WingetUpdate> {
+  const out = new Map<string, WingetUpdate>();
+  for (const u of ups) {
+    const cut = u.name.endsWith("…");
+    const un = normName(u.name.replace(/…$/, ""));
+    if (un.length < 2) continue;
+    const app = apps.find((a) => {
+      const an = normName(a.name);
+      return cut ? an.startsWith(un) : an === un;
+    });
+    if (app && !out.has(app.id) && app.version !== u.available) out.set(app.id, u);
+  }
+  return out;
 }
 
 /** Folder part of an icon spec / uninstall command, if it points at a file. */
@@ -37,11 +58,20 @@ export default function AppsPage(props: Props) {
   const searchRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const typeahead = useRef({ text: "", at: 0 });
+  const [upgrading, setUpgrading] = useState<string | null>(null);
+  const [batch, setBatch] = useState<{ i: number; n: number } | null>(null);
+  const [upgradeMsg, setUpgradeMsg] = useState<Record<string, { ok: boolean; text: string }>>({});
+
+  const updateFor = useMemo(
+    () => matchUpdates([...(win32 ?? []), ...(store ?? [])], props.updates),
+    [win32, store, props.updates],
+  );
 
   const visible = useMemo(() => {
     let list: AppInfo[] = [];
     if (filter !== "store") list = list.concat(win32 ?? []);
     if (filter !== "win32") list = list.concat(store ?? []);
+    if (filter === "updates") list = list.filter((a) => updateFor.has(a.id));
     const q = query.trim().toLowerCase();
     if (q) {
       list = list.filter(
@@ -55,7 +85,7 @@ export default function AppsPage(props: Props) {
         return (b.installDate ?? "").localeCompare(a.installDate ?? "") || byName(a, b);
       return byName(a, b);
     });
-  }, [win32, store, filter, query, sort, lang]);
+  }, [win32, store, filter, query, sort, lang, updateFor]);
 
   const totalSize = useMemo(
     () => visible.reduce((sum, a) => sum + (a.sizeBytes ?? 0), 0),
@@ -168,6 +198,39 @@ export default function AppsPage(props: Props) {
     ["win32", t("programs")],
     ["store", t("store")],
   ];
+  if (updateFor.size > 0 || filter === "updates")
+    filters.push(["updates", t("updates", { n: updateFor.size })]);
+
+  const upgradeOne = async (app: AppInfo) => {
+    const u = updateFor.get(app.id);
+    if (!u) return false;
+    setUpgrading(app.id);
+    try {
+      const text = await api.wingetUpgrade(u.id);
+      setUpgradeMsg((m) => ({ ...m, [app.id]: { ok: true, text } }));
+      return true;
+    } catch (e) {
+      setUpgradeMsg((m) => ({ ...m, [app.id]: { ok: false, text: String(e) } }));
+      return false;
+    } finally {
+      setUpgrading(null);
+    }
+  };
+
+  const upgrade = async (app: AppInfo) => {
+    await upgradeOne(app);
+    props.onUpdated();
+  };
+
+  const upgradeAll = async () => {
+    const targets = visible.filter((a) => updateFor.has(a.id));
+    for (let i = 0; i < targets.length; i++) {
+      setBatch({ i: i + 1, n: targets.length });
+      await upgradeOne(targets[i]);
+    }
+    setBatch(null);
+    props.onUpdated();
+  };
 
   return (
     <div className="page">
@@ -239,8 +302,18 @@ export default function AppsPage(props: Props) {
           <option value="date">{t("sortDate")}</option>
         </select>
         <div className="spacer" />
-        {!loading && (
-          <span className="summary">
+        {filter === "updates" && updateFor.size > 0 && (
+          <button
+            className="btn filled"
+            disabled={upgrading !== null || batch !== null}
+            onClick={upgradeAll}
+          >
+            {batch ? <Spinner /> : <Icon name="update" />}
+            {batch ? t("updatingN", batch) : t("updateAll", { n: updateFor.size })}
+          </button>
+        )}
+        {!loading && filter !== "updates" && (
+          <span className="summary optional">
             {t("count", { n: visible.length })}
             {totalSize > 0 && ` · ${t("totalSize", { size: formatSize(totalSize, lang) })}`}
           </span>
@@ -295,6 +368,12 @@ export default function AppsPage(props: Props) {
                   <div className="row-name">{app.name}</div>
                   <div className="row-sub">
                     {app.publisher || (app.kind === "store" ? t("storeApp") : "")}
+                    {updateFor.has(app.id) && (
+                      <span className="upd">
+                        <Icon name="update" />
+                        {updateFor.get(app.id)!.available}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="col-size">{formatSize(app.sizeBytes, lang)}</div>
@@ -308,6 +387,11 @@ export default function AppsPage(props: Props) {
           app={selected}
           onUninstall={onUninstall}
           empty={!loading && visible.length === 0}
+          update={selected ? updateFor.get(selected.id) : undefined}
+          upgrading={selected !== null && upgrading === selected.id}
+          upgradeLocked={upgrading !== null || batch !== null}
+          upgradeMsg={selected ? upgradeMsg[selected.id] : undefined}
+          onUpgrade={upgrade}
         />
       </div>
 
@@ -375,10 +459,20 @@ function Details({
   app,
   empty,
   onUninstall,
+  update,
+  upgrading,
+  upgradeLocked,
+  upgradeMsg,
+  onUpgrade,
 }: {
   app: AppInfo | null;
   empty: boolean;
   onUninstall: (app: AppInfo, force: boolean) => void;
+  update?: WingetUpdate;
+  upgrading: boolean;
+  upgradeLocked: boolean;
+  upgradeMsg?: { ok: boolean; text: string };
+  onUpgrade: (app: AppInfo) => void;
 }) {
   const { t, lang } = useI18n();
 
@@ -419,11 +513,27 @@ function Details({
             {t("forceShort")}
           </button>
         )}
+        {update && (
+          <button
+            className="btn update-btn"
+            disabled={upgradeLocked}
+            onClick={() => onUpgrade(app)}
+          >
+            {upgrading ? <Spinner /> : <Icon name="update" />}
+            {upgrading ? t("updating") : t("updateTo", { v: update.available })}
+          </button>
+        )}
       </div>
+      {upgradeMsg && (
+        <div className={upgradeMsg.ok ? "tweak-note" : "backup-error"} title={upgradeMsg.text}>
+          {upgradeMsg.ok ? t("updateDone") : `${t("updateFailed")}: ${upgradeMsg.text}`}
+        </div>
+      )}
 
       <dl className="props">
         <Prop label={t("pKind")} value={t(kind)} />
         <Prop label={t("pVersion")} value={app.version} />
+        {update && <Prop label={t("pAvailable")} value={update.available} />}
         <Prop label={t("pSize")} value={formatSize(app.sizeBytes, lang)} />
         <Prop label={t("pDate")} value={formatDate(app.installDate, lang)} />
         <Prop

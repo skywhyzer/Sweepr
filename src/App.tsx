@@ -3,23 +3,27 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { open as pickFolder } from "@tauri-apps/plugin-dialog";
 import { api } from "./api";
 import { I18n, initialLang, makeT, type Key, type Lang } from "./i18n";
-import type { AppInfo } from "./types";
+import type { AppInfo, WingetUpdate } from "./types";
 import { Icon } from "./ui";
 import AppsPage from "./AppsPage";
 import UninstallDialog from "./UninstallDialog";
-import BackupsPage from "./BackupsPage";
+import StartupPage from "./StartupPage";
+import CleanupPage from "./CleanupPage";
+import RecoveryPage from "./RecoveryPage";
 import TweaksPage from "./TweaksPage";
 import SettingsPage, { type ThemePref } from "./SettingsPage";
 import DiskView from "./DiskView";
 
-type View = "apps" | "disk" | "tweaks" | "backups" | "settings";
-const VIEWS: View[] = ["apps", "disk", "tweaks", "backups", "settings"];
+type View = "apps" | "startup" | "cleanup" | "disk" | "tweaks" | "recovery" | "settings";
+const VIEWS: View[] = ["apps", "startup", "cleanup", "disk", "tweaks", "recovery", "settings"];
 
 const NAV: [View, string, Key][] = [
   ["apps", "apps", "viewApps"],
+  ["startup", "rocket", "navStartup"],
+  ["cleanup", "delete_sweep", "navCleanup"],
   ["disk", "donut_large", "viewDisk"],
   ["tweaks", "tune", "tweaks"],
-  ["backups", "history", "navBackups"],
+  ["recovery", "history", "navRecovery"],
 ];
 
 function stored<T extends string>(key: string, allowed: readonly T[], fallback: T): T {
@@ -50,6 +54,7 @@ export default function App() {
 
   const [win32, setWin32] = useState<AppInfo[] | null>(null);
   const [store, setStore] = useState<AppInfo[] | null>(null);
+  const [updates, setUpdates] = useState<WingetUpdate[]>([]);
   const [elevated, setElevated] = useState(true);
   const [target, setTarget] = useState<{ app: AppInfo; force: boolean } | null>(null);
   const [view, setView] = useState<View>(() => stored("view", VIEWS, "apps"));
@@ -66,6 +71,11 @@ export default function App() {
       .listStore()
       .then(setStore)
       .catch(() => setStore([]));
+    // winget is slow and optional: the list shows first, updates follow.
+    api
+      .wingetUpdates()
+      .then(setUpdates)
+      .catch(() => setUpdates([]));
   }, []);
 
   useEffect(() => {
@@ -155,6 +165,8 @@ export default function App() {
               onUninstall={(app, force) => setTarget({ app, force })}
               onForceFolder={forceByFolder}
               onRestartAdmin={restartAdmin}
+              updates={updates}
+              onUpdated={reload}
             />
           </div>
           {/* The disk view stays mounted so a finished scan survives switching pages. */}
@@ -162,7 +174,15 @@ export default function App() {
             <DiskView dark={theme === "dark"} />
           </div>
           {view === "tweaks" && <TweaksPage elevated={elevated} />}
-          {view === "backups" && <BackupsPage />}
+          {view === "startup" && (
+            <StartupPage elevated={elevated} onRestartAdmin={restartAdmin} />
+          )}
+          {view === "cleanup" && (
+            <CleanupPage elevated={elevated} onRestartAdmin={restartAdmin} />
+          )}
+          {view === "recovery" && (
+            <RecoveryPage elevated={elevated} onRestartAdmin={restartAdmin} />
+          )}
           {view === "settings" && (
             <SettingsPage
               themePref={themePref}
