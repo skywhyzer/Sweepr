@@ -14,6 +14,7 @@ import {
   type Tile,
 } from "./treemap";
 import { Icon, Spinner } from "./ui";
+import { log } from "./log";
 
 type Phase = "start" | "scanning" | "result";
 type Row = { item: DiskItem; depth: number; parentSize: number };
@@ -105,8 +106,17 @@ export default function DiskView({ dark }: { dark: boolean }) {
       setProgress(null);
       setError(null);
       const unlisten = await listen<ScanProgress>("disk-progress", (e) => setProgress(e.payload));
+      log.cmd("disk", t("lgDiskScan", { path }));
       try {
         const r = await api.diskScan(path);
+        log.ok(
+          "disk",
+          t("lgDiskDone", {
+            size: formatSize(r.root.size, lang),
+            files: r.root.files.toLocaleString(lang),
+            sec: r.seconds.toFixed(1),
+          }),
+        );
         setResult(r);
         setRoot(r.root);
         setKids(new Map());
@@ -262,8 +272,18 @@ export default function DiskView({ dark }: { dark: boolean }) {
     if (!confirm) return;
     const { item, permanent } = confirm;
     setBusy(true);
+    log.cmd(
+      "disk",
+      t("lgDiskDelete", {
+        path: selPath ?? item.name,
+        size: size(item.size),
+        how: t(permanent ? "lgHowForever" : "lgHowTrash"),
+      }),
+    );
     try {
       const r = await api.diskDelete([item.id], permanent);
+      r.failed.forEach((f) => log.err("disk", t("lgDeleteFail", { path: f.path, error: f.error })));
+      if (!r.failed.length) log.ok("disk", t("lgDiskDeleted", { size: size(r.freed) }));
       if (r.failed.length) {
         setToast({ text: t("diskDeleteFailed", { error: r.failed[0].error }), error: true });
       } else {

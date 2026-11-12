@@ -2689,3 +2689,279 @@ pre.output {
 .menu button.danger-item .icon {
   color: var(--danger);
 }
+
+/* ---------------------------------------------------------- terminal */
+
+.term {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: #0c0c0c;
+  color: #cccccc;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.32);
+}
+
+.term-bar {
+  display: flex;
+  flex: none;
+  align-items: flex-end;
+  height: 36px;
+  padding: 4px 6px 0 6px;
+  background: #1c1c1c;
+}
+
+.term-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 14px 0 12px;
+  border-radius: 8px 8px 0 0;
+  background: #0c0c0c;
+  color: #f2f2f2;
+  font-size: 12px;
+}
+
+.term-tab .icon {
+  font-size: 14px;
+  color: #61d6d6;
+}
+
+.term-act {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 28px;
+  margin-bottom: 2px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: #cccccc;
+  cursor: pointer;
+}
+
+.term-act:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.term-act:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.term-act .icon {
+  font-size: 15px;
+}
+
+.term-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 10px 14px 12px;
+  font: 400 12.5px/1.6 "Cascadia Mono", "Cascadia Code", Consolas, "Courier New", monospace;
+  user-select: text;
+  cursor: text;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.term.compact .term-body {
+  padding-top: 8px;
+}
+
+.term-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  min-height: 20px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.term-time {
+  flex: none;
+  min-width: 62px;
+  margin-right: 10px;
+  color: #767676;
+}
+
+.term-scope {
+  flex: none;
+  min-width: 72px;
+  margin-right: 10px;
+  color: #cccccc;
+}
+
+.term-glyph {
+  flex: none;
+  width: 18px;
+}
+
+.term-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.lvl-info .term-glyph {
+  color: #3b78ff;
+}
+.lvl-ok .term-glyph,
+.lvl-ok .term-text {
+  color: #16c60c;
+}
+.lvl-warn .term-glyph,
+.lvl-warn .term-text {
+  color: #f9f1a5;
+}
+.lvl-err .term-glyph,
+.lvl-err .term-text {
+  color: #e74856;
+}
+.lvl-cmd .term-glyph {
+  color: #61d6d6;
+}
+.lvl-cmd .term-text {
+  color: #ffffff;
+  font-weight: 600;
+}
+.lvl-out .term-text {
+  color: #a6a6a6;
+}
+
+.sc-uninstall,
+.sc-updates {
+  color: #61d6d6;
+}
+.sc-restore,
+.sc-backups {
+  color: #c586c0;
+}
+.sc-cleanup,
+.sc-disk {
+  color: #f9f1a5;
+}
+.sc-repair {
+  color: #f09a4d;
+}
+.sc-startup,
+.sc-tweaks,
+.sc-system {
+  color: #3b78ff;
+}
+
+.term-empty {
+  color: #767676;
+}
+
+.term-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  background: #cccccc;
+  transform: translateY(2px);
+  animation: term-blink 1.06s steps(1) infinite;
+}
+
+@keyframes term-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .term-cursor {
+    animation: none;
+  }
+}
+
+.log-page-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  padding: 0 32px 24px;
+}
+
+.log-page-body .term {
+  flex: 1;
+}
+
+/* A terminal docked under a dialog's content. */
+.log-dock {
+  margin: 14px 0;
+}
+
+.log-dock-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.log-dock-head .icon {
+  font-size: 14px;
+}
+
+.log-dock .term {
+  height: 190px;
+  margin-top: 6px;
+}
+
+.option-hint {
+  margin: 2px 0 0 30px;
+}
+
+.log-block {
+  margin-top: 12px;
+}
+
+.log-block.top {
+  margin: 0 0 14px;
+}
+
+.log-block .term {
+  height: 220px;
+}
+
+/* ----------------------------------------------- restore point rows */
+
+.point-all {
+  padding: 4px 16px 8px;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.point-check {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--primary);
+}
+
+.card-row.picked {
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--stroke));
+  background: color-mix(in srgb, var(--primary) 8%, var(--card));
+}
+
+.btn.danger-soft:not(:disabled) {
+  color: var(--danger);
+}
+
+.note-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 4px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  background: var(--control);
+}

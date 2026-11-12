@@ -3,6 +3,7 @@ import { api } from "./api";
 import { useI18n } from "./i18n";
 import type { BackupInfo } from "./types";
 import { Icon, Skeleton } from "./ui";
+import { log } from "./log";
 
 type Status = "busy" | "restored" | "failed";
 
@@ -21,17 +22,23 @@ export default function BackupsSection() {
 
   const restore = async (id: string) => {
     setStatus((s) => ({ ...s, [id]: "busy" }));
+    const name = list?.find((b) => b.id === id)?.appName ?? id;
+    log.cmd("backups", t("lgBackupRestore", { name }));
     try {
-      await api.restoreBackup(id);
+      const n = await api.restoreBackup(id);
+      log.ok("backups", t("lgBackupRestored", { n }));
       setStatus((s) => ({ ...s, [id]: "restored" }));
     } catch (e) {
+      log.err("backups", t("lgError", { error: String(e) }));
       setErrors((x) => ({ ...x, [id]: String(e) }));
       setStatus((s) => ({ ...s, [id]: "failed" }));
     }
   };
 
   const remove = async (id: string) => {
+    const name = list?.find((b) => b.id === id)?.appName ?? id;
     await api.deleteBackup(id).catch(() => {});
+    log.info("backups", t("lgBackupDelete", { name }));
     load();
   };
 

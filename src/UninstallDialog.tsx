@@ -3,7 +3,9 @@ import { api } from "./api";
 import { formatSize, useI18n, type Key } from "./i18n";
 import type { AppInfo, DeleteReport, Leftover } from "./types";
 import { AppIcon, Icon, Spinner } from "./ui";
-import { safetyRestorePoint } from "./prefs";
+import { getPref } from "./prefs";
+import { log, useLog } from "./log";
+import { LogView } from "./LogView";
 
 type Phase =
   | "confirm"
@@ -101,11 +103,28 @@ export default function UninstallDialog({
   const [useTrash, setUseTrash] = useState(true);
   const [backupRegistry, setBackupRegistry] = useState(true);
   const [report, setReport] = useState<DeleteReport | null>(null);
+  // Whether to make a restore point first: the Settings default, changeable here.
+  const [makePoint, setMakePoint] = useState(() => getPref("autoRestore", true));
+  const [elevated, setElevated] = useState<boolean | null>(null);
+  const [logOpen, setLogOpen] = useState(true);
   // Bumped whenever the flow moves on, so stale waits and polls stop.
   const run = useRef(0);
   const changed = useRef(false);
+  const startMark = useRef(log.mark());
+  const all = useLog();
+  const mine = all.filter((e) => e.id >= startMark.current && e.scope === "uninstall");
 
   useEffect(() => () => void run.current++, []);
+  // The terminal follows the work, then steps aside for the lists and results.
+  useEffect(() => {
+    setLogOpen(["restorePoint", "uninstalling", "scanning", "cleaning"].includes(phase));
+  }, [phase]);
+  useEffect(() => {
+    api
+      .isElevated()
+      .then(setElevated)
+      .catch(() => setElevated(false));
+  }, []);
 
   const stillInstalled = () => api.isInstalled(app).catch(() => true);
 
@@ -115,25 +134,78 @@ export default function UninstallDialog({
     changed.current = true;
     setForced(asForced);
     setPhase("scanning");
+    log.cmd("uninstall", t("lgScan"));
     try {
       const list = await api.scanLeftovers(app);
       if (id !== run.current) return;
-      if (!list.length) return setPhase("done");
+      if (!list.length) {
+        log.ok("uninstall", t("lgScanNone"));
+        return setPhase("done");
+      }
+      const regCount = list.filter(isReg).length;
+      log.ok(
+        "uninstall",
+        t("lgScanDone", {
+          n: list.length,
+          files: list.length - regCount,
+          reg: regCount,
+          size: formatSize(
+            list.reduce((sum, l) => sum + l.sizeBytes, 0),
+            lang,
+          ),
+        }),
+      );
+      list.slice(0, 30).forEach((l) =>
+        log.out(
+          "uninstall",
+          t("lgItem", {
+            mark: t(l.confidence === "safe" ? "lgMarkSafe" : "lgMarkReview"),
+            path: l.path + (l.valueName ? " → " + l.valueName : ""),
+            reason: t(`reason_${l.reason}` as Key),
+            size: formatSize(l.sizeBytes, lang) || "0",
+          }),
+        ),
+      );
+      if (list.length > 30) log.out("uninstall", t("lgMore", { n: list.length - 30 }));
       setFound(list);
       setChecked(new Set(list.filter((l) => l.confidence === "safe").map(itemKey)));
       setPhase("review");
     } catch (e) {
+      log.err("uninstall", t("lgError", { error: String(e) }));
       setError(String(e));
       setPhase("error");
     }
   };
 
   const start = async () => {
-    // A restore point first, so even a broken uninstaller can be rolled back.
     const before = ++run.current;
-    setPhase("restorePoint");
-    await safetyRestorePoint(`Sweepr: ${app.name}`);
-    if (before !== run.current) return;
+    log.info(
+      "uninstall",
+      t("lgStart", {
+        name: app.name,
+        kind: t(app.kind === "store" ? "lgKindStore" : "lgKindWin32"),
+        version: app.version || "—",
+      }),
+    );
+    if (forced) log.info("uninstall", t("lgForce"));
+    // A restore point first, so even a broken uninstaller can be rolled back.
+    // The user can skip it: here, or for good in Settings.
+    if (!makePoint) {
+      log.info("uninstall", t(getPref("autoRestore", true) ? "lgRpSkip" : "lgRpSkipSetting"));
+    } else if (elevated === false) {
+      log.warn("uninstall", t("lgRpFail", { error: t("optRestoreNoAdmin") }));
+    } else {
+      setPhase("restorePoint");
+      const name = `Sweepr: ${app.name}`;
+      log.cmd("uninstall", t("lgRpCreate", { name }));
+      try {
+        await api.createRestorePoint(name);
+        log.ok("uninstall", t("lgRpOk"));
+      } catch (e) {
+        log.warn("uninstall", t("lgRpFail", { error: String(e) }));
+      }
+      if (before !== run.current) return;
+    }
     if (forced) return scan(true);
     const id = ++run.current;
     changed.current = true;
@@ -150,15 +222,25 @@ export default function UninstallDialog({
     })();
 
     let code = 0;
+    if (app.kind === "store") {
+      log.cmd("uninstall", t("lgStoreRemove"));
+      if (app.packageFullName) log.out("uninstall", app.packageFullName);
+    } else {
+      log.cmd("uninstall", t("lgRunUninstaller"));
+      log.out("uninstall", app.quietUninstallString || app.uninstallString || "—");
+    }
     try {
       // Resolves only when the uninstaller and all its child processes exit.
       code = await api.runUninstaller(app);
+      log.info("uninstall", t("lgUninstallerExit", { code }));
     } catch (e) {
       if (id !== run.current) return;
       if (String(e).includes("UNINSTALLER_MISSING")) {
+        log.err("uninstall", t("lgUninstallerMissing"));
         setStuck({ code: 0, missing: true });
         setPhase("stuck");
       } else {
+        log.err("uninstall", t("lgError", { error: String(e) }));
         setError(`${t("uninstallFailed")}: ${e}`);
         setPhase("error");
       }
@@ -166,10 +248,12 @@ export default function UninstallDialog({
     }
     if (id !== run.current) return;
     if (!(await stillInstalled())) {
+      log.ok("uninstall", t("lgGone"));
       if (id === run.current) scan(false);
       return;
     }
     if (id !== run.current) return;
+    log.warn("uninstall", t("lgStillThere"));
     setStuck({ code, missing: false });
     setPhase("stuck");
     // An elevated uninstaller may still be working out of our sight.
@@ -186,10 +270,28 @@ export default function UninstallDialog({
     const items = found.filter((l) => checked.has(itemKey(l)));
     if (!items.length) return setPhase("done");
     setPhase("cleaning");
+    log.cmd(
+      "uninstall",
+      t("lgDelete", {
+        n: items.length,
+        how: t(useTrash ? "lgHowTrash" : "lgHowForever"),
+        backup: t(backupRegistry ? "lgYes" : "lgNo"),
+      }),
+    );
     try {
-      setReport(await api.deleteLeftovers(items, useTrash, backupRegistry, app.name, null));
+      const r = await api.deleteLeftovers(items, useTrash, backupRegistry, app.name, null);
+      r.failed.forEach((f) =>
+        log.err("uninstall", t("lgDeleteFail", { path: f.path, error: f.error })),
+      );
+      log.ok(
+        "uninstall",
+        t("lgDeleteDone", { n: r.deleted, size: formatSize(r.freedBytes, lang) || "0" }),
+      );
+      if (r.backupPath) log.info("uninstall", t("lgBackup", { path: r.backupPath }));
+      setReport(r);
       setPhase("done");
     } catch (e) {
+      log.err("uninstall", t("lgError", { error: String(e) }));
       setError(String(e));
       setPhase("error");
     }
@@ -232,10 +334,35 @@ export default function UninstallDialog({
           </div>
         </div>
 
+        {phase !== "confirm" && (
+          <div className="log-dock">
+            <button className="log-dock-head" onClick={() => setLogOpen((o) => !o)}>
+              <Icon name={logOpen ? "expand_more" : "chevron_right"} />
+              <Icon name="terminal" />
+              {t(logOpen ? "logHide" : "logShow")}
+            </button>
+            {logOpen && <LogView compact entries={mine} live={busy || phase === "uninstalling"} />}
+          </div>
+        )}
+
         {phase === "confirm" && (
           <>
             <h2>{t(forced ? "confirmForceTitle" : "confirmTitle", { name: app.name })}</h2>
             <p>{t(forced ? "confirmForceText2" : "confirmText2")}</p>
+            <div className="options">
+              <label className="check-row">
+                <input
+                  type="checkbox"
+                  checked={makePoint && elevated !== false}
+                  disabled={elevated === false}
+                  onChange={(e) => setMakePoint(e.target.checked)}
+                />
+                <span>{t("optRestorePoint")}</span>
+              </label>
+              <div className="row-sub wrap option-hint">
+                {t(elevated === false ? "optRestoreNoAdmin" : "optRestorePointHint")}
+              </div>
+            </div>
             <div className="dialog-actions">
               <button className="btn text" onClick={close}>
                 {t("cancel")}
@@ -361,7 +488,13 @@ export default function UninstallDialog({
               </label>
             </div>
             <div className="dialog-actions">
-              <button className="btn text" onClick={() => setPhase("done")}>
+              <button
+                className="btn text"
+                onClick={() => {
+                  log.info("uninstall", t("lgKept"));
+                  setPhase("done");
+                }}
+              >
                 {t("keepAll")}
               </button>
               <button

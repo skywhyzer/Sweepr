@@ -54,6 +54,7 @@ import i_usb_stick from "@fluentui/svg-icons/icons/usb_stick_20_regular.svg?raw"
 import i_warning from "@fluentui/svg-icons/icons/warning_20_regular.svg?raw";
 import i_weather_moon from "@fluentui/svg-icons/icons/weather_moon_20_regular.svg?raw";
 import i_weather_sunny from "@fluentui/svg-icons/icons/weather_sunny_20_regular.svg?raw";
+import i_window_console from "@fluentui/svg-icons/icons/window_console_20_regular.svg?raw";
 import i_zoom_in from "@fluentui/svg-icons/icons/zoom_in_20_regular.svg?raw";
 import i_zoom_out from "@fluentui/svg-icons/icons/zoom_out_20_regular.svg?raw";
 
@@ -116,6 +117,7 @@ const ICONS: Record<string, string> = {
   undo: i_arrow_undo,
   usb: i_usb_stick,
   warning: i_warning,
+  terminal: i_window_console,
   zoom_in: i_zoom_in,
   zoom_out: i_zoom_out,
 };

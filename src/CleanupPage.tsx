@@ -3,6 +3,7 @@ import { api } from "./api";
 import { formatSize, useI18n, type Key } from "./i18n";
 import type { CleanCategory, Leftover, Orphan } from "./types";
 import { Icon, Skeleton, Spinner } from "./ui";
+import { log } from "./log";
 
 type Tab = "junk" | "orphans";
 
@@ -59,9 +60,18 @@ function Junk({ elevated, onRestartAdmin }: { elevated: boolean; onRestartAdmin:
 
   const scan = () => {
     setCats(null);
+    log.cmd("cleanup", t("lgCleanScan"));
     api
       .scanCleanup()
       .then((c) => {
+        const free = c.filter((x) => !x.manual).reduce((s, x) => s + x.sizeBytes, 0);
+        log.ok("cleanup", t("lgCleanScanDone", { size: formatSize(free, lang) || "0" }));
+        c.filter((x) => x.sizeBytes > 0).forEach((x) =>
+          log.out(
+            "cleanup",
+            `${t(`cl_${x.id}` as Key)}: ${formatSize(x.sizeBytes, lang)} (${x.files})${x.needsAdmin && !elevated ? " · admin" : ""}`,
+          ),
+        );
         setCats(c);
         // Everything with something to clean is selected, except the Recycle
         // Bin: emptying it is the user's call.
@@ -90,13 +100,29 @@ function Junk({ elevated, onRestartAdmin }: { elevated: boolean; onRestartAdmin:
     setConfirm(false);
     setCleaning(true);
     setResult(null);
+    log.cmd("cleanup", t("lgCleanRun", { n: checked.size }));
     try {
       const res = await api.runCleanup([...checked]);
+      res.forEach((r) =>
+        log.info(
+          "cleanup",
+          t("lgCleanItem", {
+            name: t(`cl_${r.id}` as Key),
+            size: formatSize(r.freedBytes, lang) || "0",
+            skipped: r.skipped,
+          }),
+        ),
+      );
+      log.ok(
+        "cleanup",
+        t("lgCleanDone", { size: formatSize(res.reduce((s, r) => s + r.freedBytes, 0), lang) || "0" }),
+      );
       setResult({
         freed: res.reduce((s, r) => s + r.freedBytes, 0),
         skipped: res.reduce((s, r) => s + r.skipped, 0),
       });
-    } catch {
+    } catch (e) {
+      log.err("cleanup", t("lgError", { error: String(e) }));
       setResult({ freed: 0, skipped: 0 });
     } finally {
       setCleaning(false);
@@ -225,9 +251,16 @@ function Orphans() {
     setScanning(true);
     setNote(null);
     setChecked(new Set());
+    log.cmd("cleanup", t("lgOrphanScan"));
     try {
-      setList(await api.scanOrphans());
-    } catch {
+      const found = await api.scanOrphans();
+      log.ok("cleanup", t("lgOrphanDone", { n: found.length }));
+      found.forEach((o) =>
+        log.out("cleanup", `${o.path} — ${formatSize(o.sizeBytes, lang) || "0"}`),
+      );
+      setList(found);
+    } catch (e) {
+      log.err("cleanup", t("lgError", { error: String(e) }));
       setList([]);
     } finally {
       setScanning(false);
@@ -254,8 +287,12 @@ function Orphans() {
       confidence: "review",
       reason: "orphan",
     }));
+    log.cmd("cleanup", t("lgOrphanDelete", { n: items.length }));
     try {
       const r = await api.deleteLeftovers(items, true, true, t("tabOrphans"), null);
+      r.failed.forEach((f) => log.err("cleanup", t("lgDeleteFail", { path: f.path, error: f.error })));
+      log.ok("cleanup", t("lgDeleteDone", { n: r.deleted, size: formatSize(r.freedBytes, lang) || "0" }));
+      if (r.backupPath) log.info("cleanup", t("lgBackup", { path: r.backupPath }));
       setNote(
         t("orphansDone", { n: r.deleted, size: formatSize(r.freedBytes, lang) || "0" }) +
           (r.failed.length ? ` ${t("doneFailed", { n: r.failed.length })} ${r.failed.map((f) => f.path).join(", ")}` : ""),

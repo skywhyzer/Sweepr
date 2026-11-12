@@ -3,7 +3,8 @@ import { api } from "./api";
 import { useI18n, type Key } from "./i18n";
 import type { TweakInfo } from "./types";
 import { Icon, Skeleton } from "./ui";
-import { safetyRestorePoint } from "./prefs";
+import { log } from "./log";
+import { getPref, safetyRestorePoint } from "./prefs";
 
 const CATEGORIES: TweakInfo["category"][] = [
   "interface",
@@ -48,9 +49,17 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
     });
     try {
       const updated = await api.setTweak(tw.id, enabled);
+      log.ok(
+        "tweaks",
+        t("lgTweakSet", {
+          name: t(`tw_${tw.id}` as Key),
+          state: t(enabled ? "lgStateOn" : "lgStateOff"),
+        }),
+      );
       setList((l) => l && l.map((x) => (x.id === tw.id ? updated : x)));
       if (tw.explorer) setExplorerPending(true);
     } catch (e) {
+      log.err("tweaks", t("lgError", { error: `${t(`tw_${tw.id}` as Key)}: ${e}` }));
       setErrors((x) => ({ ...x, [tw.id]: String(e) }));
     } finally {
       setBusy(null);
@@ -68,6 +77,7 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
     setNote(null);
     try {
       const n = await api.resetTweaks();
+      log.ok("tweaks", t("lgTweaksReset", { n }));
       setNote(n === 0 ? t("tweaksResetNone") : t("tweaksResetDone", { n }));
       if (n > 0) setExplorerPending(true);
     } catch (e) {
@@ -272,7 +282,14 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
                   setConfirm(null);
                   setBusy(tw.id);
                   setNote(t("stepRestorePoint"));
-                  await safetyRestorePoint(`Sweepr: ${t(`tw_${tw.id}` as Key)}`);
+                  const point = `Sweepr: ${t(`tw_${tw.id}` as Key)}`;
+                  if (getPref("autoRestore", true)) {
+                    log.cmd("restore", t("lgRpCreate", { name: point }));
+                    if (await safetyRestorePoint(point)) log.ok("restore", t("lgRpOk"));
+                    else log.warn("restore", t("lgRpFail", { error: t("optRestoreNoAdmin") }));
+                  } else {
+                    log.info("restore", t("lgRpSkipSetting"));
+                  }
                   setNote(null);
                   toggle(tw, true);
                 }}

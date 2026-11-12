@@ -164,11 +164,20 @@ export interface RestorePoint {
   sequence: number;
   description: string;
   created: number;
+  /** Windows' RestorePointType: 0 install, 1 uninstall, 10 driver, 12 settings. */
+  kind: number;
 }
 
 export interface RestoreStatus {
   enabled: boolean;
   points: RestorePoint[];
+  usedBytes?: number | null;
+  maxBytes?: number | null;
+}
+
+export interface RestoreRemoveResult {
+  deleted: number[];
+  failed: { sequence: number; error: string }[];
 }
 
 export interface RepairResult {

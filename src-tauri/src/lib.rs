@@ -96,6 +96,7 @@ pub fn run() {
             orphans::scan_orphans,
             restore::restore_status,
             restore::create_restore_point,
+            restore::delete_restore_points,
             restore::enable_system_protection,
             restore::open_system_restore,
             repair::run_repair,

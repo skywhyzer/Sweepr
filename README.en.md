@@ -18,7 +18,7 @@ English · [Русский](README.md)
 
 ## What Sweepr does
 
-A navigation pane on the left: **Programs · Startup · Clean-up · Disk · Tweaks · Recovery**, with **Settings** at the bottom.
+A navigation pane on the left: **Programs · Startup · Clean-up · Disk · Tweaks · Recovery · Log**, with **Settings** at the bottom.
 
 ### Programs
 
@@ -54,9 +54,16 @@ A WinDirStat-style usage analyzer: scan a drive or folder and see a folder tree 
 
 ### Recovery
 
-- **Restore points:** list, create, turn System Protection on, open the System Restore wizard. Sweepr creates one automatically before uninstalling a program and before a high-risk tweak (on by default, can be turned off in Settings; needs administrator rights).
+- **Restore points:** list (what each one is, who made it and when, how much disk space they take), create, turn System Protection on, open the System Restore wizard. Points can be **deleted**: one by one, a selection, or all but the latest.
+- **Automatic point** before uninstalling a program and before a high-risk tweak. Skip it right in the uninstall dialog (a checkbox) or turn it off for good in Settings. Needs administrator rights.
 - **Registry backups.** A backup is made before every registry clean-up, and you can restore it any time.
 - **Repair:** system file check (`sfc`), image repair (`DISM`), component store clean-up, network reset, Windows Update reset (folders are renamed, not deleted), DNS flush, icon cache rebuild, Explorer restart.
+
+### Log
+
+One shared log in the style of the new Windows Terminal runs through the whole app. It shows in detail what Sweepr does: which commands it runs, what it finds, **what it removes, where and why**, and where it saves backups. It appears inside the uninstall dialog, in Repair, and as a separate Log page with filters; you can copy it. The latest entries survive a restart.
+
+<p align="center"><img src="docs/screenshots/log.png" alt="Sweepr log" width="760" /></p>
 
 ### Look and feel
 
@@ -68,7 +75,9 @@ Looks like part of Windows 11: Fluent design, Mica backdrop, your system accent 
 |---|---|
 | <img src="docs/screenshots/startup.png" /><br/><sub>Startup</sub> | <img src="docs/screenshots/cleanup.png" /><br/><sub>Clean-up</sub> |
 | <img src="docs/screenshots/disk.png" /><br/><sub>Disk</sub> | <img src="docs/screenshots/tweaks.png" /><br/><sub>Tweaks</sub> |
-| <img src="docs/screenshots/recovery.png" /><br/><sub>Recovery</sub> | <img src="docs/screenshots/main-light.png" /><br/><sub>Light theme</sub> |
+| <img src="docs/screenshots/recovery.png" /><br/><sub>Recovery</sub> | <img src="docs/screenshots/log.png" /><br/><sub>Log</sub> |
+
+<p align="center"><img src="docs/screenshots/main-light.png" alt="Light theme" width="620" /></p>
 
 Uninstalling a program: confirm, leftovers found, done.
 

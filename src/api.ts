@@ -11,6 +11,7 @@ import type {
   MapNode,
   Orphan,
   RepairResult,
+  RestoreRemoveResult,
   RestoreStatus,
   ScanResult,
   StartupItem,
@@ -37,6 +38,8 @@ export const api = {
   restoreStatus: () => invoke<RestoreStatus>("restore_status"),
   createRestorePoint: (description: string) =>
     invoke<void>("create_restore_point", { description }),
+  deleteRestorePoints: (sequences: number[]) =>
+    invoke<RestoreRemoveResult>("delete_restore_points", { sequences }),
   enableSystemProtection: () => invoke<void>("enable_system_protection"),
   openSystemRestore: () => invoke<void>("open_system_restore"),
   runRepair: (id: string) => invoke<RepairResult>("run_repair", { id }),

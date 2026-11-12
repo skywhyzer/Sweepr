@@ -10,12 +10,13 @@ import UninstallDialog from "./UninstallDialog";
 import StartupPage from "./StartupPage";
 import CleanupPage from "./CleanupPage";
 import RecoveryPage from "./RecoveryPage";
+import LogPage from "./LogPage";
 import TweaksPage from "./TweaksPage";
 import SettingsPage, { type ThemePref } from "./SettingsPage";
 import DiskView from "./DiskView";
 
-type View = "apps" | "startup" | "cleanup" | "disk" | "tweaks" | "recovery" | "settings";
-const VIEWS: View[] = ["apps", "startup", "cleanup", "disk", "tweaks", "recovery", "settings"];
+type View = "apps" | "startup" | "cleanup" | "disk" | "tweaks" | "recovery" | "log" | "settings";
+const VIEWS: View[] = ["apps", "startup", "cleanup", "disk", "tweaks", "recovery", "log", "settings"];
 
 const NAV: [View, string, Key][] = [
   ["apps", "apps", "viewApps"],
@@ -24,6 +25,7 @@ const NAV: [View, string, Key][] = [
   ["disk", "donut_large", "viewDisk"],
   ["tweaks", "tune", "tweaks"],
   ["recovery", "history", "navRecovery"],
+  ["log", "terminal", "navLog"],
 ];
 
 function stored<T extends string>(key: string, allowed: readonly T[], fallback: T): T {
@@ -183,6 +185,7 @@ export default function App() {
           {view === "recovery" && (
             <RecoveryPage elevated={elevated} onRestartAdmin={restartAdmin} />
           )}
+          {view === "log" && <LogPage />}
           {view === "settings" && (
             <SettingsPage
               themePref={themePref}

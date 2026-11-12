@@ -14,6 +14,17 @@
 
 - Pages that load a list (Programs, Startup, Clean-up, Recovery, Tweaks, registry backups) show shimmering placeholder rows in the shape of the content instead of a lone spinner.
 
+### Log, in the style of Windows Terminal
+
+- One activity log for the whole app, shown as a terminal window (tab strip, Campbell colours, Cascadia Mono, blinking cursor). It records what Sweepr runs, what it finds, what it removes and where, and where backups go: uninstalling, restore points, clean-up, repair, startup, tweaks, disk, program updates and registry backups.
+- It appears inside the uninstall dialog (follows the work live), in Recovery → Repair (command output with errors in red) and as a new **Log** page with filters and Copy / Clear. The last 600 entries survive a restart.
+
+### Restore points
+
+- Restore points can be deleted: one by one, a selection, or "keep only the latest". They are removed through Windows' own API, one at a time, so one failure doesn't stop the rest.
+- Every point shows its type (install, uninstall, settings change…), a mark if Sweepr made it, the date, and the status line shows how much disk space the points take and where they live.
+- The uninstall dialog has a checkbox **Create a restore point before uninstalling**, so it can be skipped for a single program. The default still comes from Settings.
+
 ### Disk
 
 - Right-click on a tile of the map, on a row of the tree or on a file in the "Largest files" list opens a context menu: open, show in Explorer, zoom into the folder, copy the path, move to the Recycle Bin, delete permanently. The Menu key and Shift+F10 do the same in the tree.

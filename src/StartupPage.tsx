@@ -3,6 +3,7 @@ import { api } from "./api";
 import { useI18n, type Key } from "./i18n";
 import type { StartupItem } from "./types";
 import { Icon, Skeleton } from "./ui";
+import { log } from "./log";
 
 type Filter = "all" | "on" | "off" | "broken";
 
@@ -51,8 +52,18 @@ export default function StartupPage({
     setError(it.id, null);
     try {
       await api.setStartup(it.id, !it.enabled);
+      log.ok(
+        "startup",
+        t("lgStartupToggle", {
+          name: it.name,
+          state: t(!it.enabled ? "lgStateOn" : "lgStateOff"),
+          where: it.location,
+        }),
+      );
+      log.out("startup", it.command);
       setList((l) => l && l.map((x) => (x.id === it.id ? { ...x, enabled: !it.enabled } : x)));
     } catch (e) {
+      log.err("startup", t("lgError", { error: `${it.name}: ${e}` }));
       setError(it.id, String(e));
     } finally {
       setBusy(null);
@@ -64,8 +75,10 @@ export default function StartupPage({
     setError(it.id, null);
     try {
       await api.removeStartup(it.id, it.name);
+      log.ok("startup", t("lgStartupRemove", { name: it.name }));
       setList((l) => l && l.filter((x) => x.id !== it.id));
     } catch (e) {
+      log.err("startup", t("lgError", { error: `${it.name}: ${e}` }));
       setError(it.id, String(e));
     } finally {
       setBusy(null);

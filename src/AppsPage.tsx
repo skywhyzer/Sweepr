@@ -3,6 +3,7 @@ import { api } from "./api";
 import { formatDate, formatSize, useI18n, type Key } from "./i18n";
 import type { AppInfo, WingetUpdate } from "./types";
 import { AppIcon, Icon, Skeleton, Spinner } from "./ui";
+import { log } from "./log";
 
 type Filter = "all" | "win32" | "store" | "updates";
 type Sort = "name" | "size" | "date";
@@ -205,11 +206,16 @@ export default function AppsPage(props: Props) {
     const u = updateFor.get(app.id);
     if (!u) return false;
     setUpgrading(app.id);
+    log.cmd("updates", t("lgUpdate", { name: app.name, version: u.available }));
+    log.out("updates", `winget upgrade --id ${u.id}`);
     try {
       const text = await api.wingetUpgrade(u.id);
+      if (text) log.out("updates", text);
+      log.ok("updates", t("lgUpdateDone", { name: app.name }));
       setUpgradeMsg((m) => ({ ...m, [app.id]: { ok: true, text } }));
       return true;
     } catch (e) {
+      log.err("updates", t("lgError", { error: String(e) }));
       setUpgradeMsg((m) => ({ ...m, [app.id]: { ok: false, text: String(e) } }));
       return false;
     } finally {
