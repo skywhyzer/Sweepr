@@ -2105,6 +2105,7 @@ input[type="checkbox"]:disabled {
 /* Command bar above the list */
 .commandbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
   padding: 0 32px 12px;
@@ -2143,7 +2144,7 @@ input[type="checkbox"]:disabled {
 
 /* Settings-style cards (Windows Settings) */
 .settings {
-  max-width: 1000px;
+  max-width: none;
 }
 
 .settings > .tweak-cat:first-child,
@@ -2584,7 +2585,7 @@ pre.output {
 /* ---------------------------------------------------------- skeleton */
 
 .skeleton {
-  max-width: 1000px;
+  max-width: none;
 }
 
 .skeleton.app {
@@ -2964,4 +2965,18 @@ pre.output {
   padding: 8px 12px;
   border-radius: var(--radius);
   background: var(--control);
+}
+
+/* ------------------------------------------------- centred page column */
+
+/* Pages made of cards keep one column of a comfortable width. The heading,
+   the command bar and the list share it, so on a wide or full-screen window
+   everything stays in line instead of drifting to opposite edges. */
+.page.narrow > .page-head,
+.page.narrow > .commandbar,
+.page.narrow > .page-scroll,
+.page.narrow > .log-page-body {
+  width: 100%;
+  max-width: 1160px;
+  margin-inline: auto;
 }

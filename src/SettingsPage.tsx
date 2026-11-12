@@ -34,7 +34,7 @@ export default function SettingsPage({
   }, []);
 
   return (
-    <div className="page">
+    <div className="page narrow">
       <header className="page-head">
         <h1>{t("settings")}</h1>
       </header>

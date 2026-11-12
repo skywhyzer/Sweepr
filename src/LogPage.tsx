@@ -24,7 +24,7 @@ export default function LogPage() {
   );
 
   return (
-    <div className="page">
+    <div className="page narrow">
       <header className="page-head">
         <div>
           <h1>{t("navLog")}</h1>

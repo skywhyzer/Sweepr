@@ -19,7 +19,7 @@ export default function CleanupPage({
   const [tab, setTab] = useState<Tab>("junk");
 
   return (
-    <div className="page">
+    <div className="page narrow">
       <header className="page-head">
         <div>
           <h1>{t("navCleanup")}</h1>

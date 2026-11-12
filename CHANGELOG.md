@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.1
+
+### Fixed
+
+- Large and full-screen windows: pages made of cards (Startup, Clean-up, Tweaks, Recovery, Log, Settings) are now one centred column, so the heading, the buttons and the list line up instead of the list stopping short while the buttons sat at the far edge. Programs and Disk still use the whole window.
+- The window can no longer be made smaller than 900 x 600, so nothing gets squeezed or overlaps; command bars with many buttons wrap onto a second line instead of running over each other.
+- The automatic interface zoom announced in 0.5.0 is gone: it was not in that build, and the interface now simply adapts to the window.
+
 ## 0.5.0
 
 ### New icon and logo

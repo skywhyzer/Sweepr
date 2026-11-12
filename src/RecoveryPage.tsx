@@ -26,7 +26,7 @@ export default function RecoveryPage({
   ];
 
   return (
-    <div className="page">
+    <div className="page narrow">
       <header className="page-head">
         <div>
           <h1>{t("navRecovery")}</h1>

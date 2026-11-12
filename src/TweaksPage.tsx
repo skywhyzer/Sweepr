@@ -112,7 +112,7 @@ export default function TweaksPage({ elevated }: { elevated: boolean }) {
   const found = matches ? (list ?? []).filter((x) => matches.has(x.id)) : list;
 
   return (
-    <div className="page">
+    <div className="page narrow">
       <header className="page-head">
         <div>
           <h1>{t("tweaks")}</h1>

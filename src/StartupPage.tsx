@@ -110,7 +110,7 @@ export default function StartupPage({
   if (broken) filters.push(["broken", `${t("stBroken")} (${broken})`]);
 
   return (
-    <div className="page">
+    <div className="page narrow">
       <header className="page-head">
         <div>
           <h1>{t("navStartup")}</h1>
