@@ -14,6 +14,16 @@ The interface has moved from a Material/Google-style design to Fluent, so Sweepr
 - Browser behaviour is switched off: the WebView context menu, F5 / Ctrl+R reload, Ctrl+P print, the find bar, back/forward navigation and dragging images out.
 - The window appears only after the first paint, so there is no white flash at startup.
 
+### Navigation pane and details pane
+
+- A left navigation pane (as in WinUI's NavigationView) replaces the toolbar icons: **Programs**, **Disk**, **Tweaks**, **Backups**, and **Settings** at the bottom. It can be collapsed to icons and collapses by itself in narrow windows.
+- Tweaks and registry backups are full pages instead of dialogs, laid out as Windows Settings cards.
+- New **Settings** page: theme (light, dark or follow Windows), language, administrator rights, version.
+- The program list works like File Explorer: click to select, a details pane on the right (type, version, size, install date, location, uninstall command, registry key, package name — each can be copied) with **Uninstall** and **Force remove** buttons and **Open file location**.
+- Right-click menu on programs: uninstall, force remove, open file location, copy name.
+- Keyboard: arrows, Page Up/Down, Home/End, type-ahead by name, `Enter` / `Delete` to uninstall, `Shift+F10` / Menu key for the context menu, `↓` from the search box into the list.
+- The default window is larger (1180 × 760) to fit the details pane.
+
 ## 0.3.0
 
 ### New: reversible system tweaks

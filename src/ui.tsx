@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { loadIcon } from "./api";
 import type { AppInfo } from "./types";
+import i_navigation from "@fluentui/svg-icons/icons/navigation_20_regular.svg?raw";
+import i_settings from "@fluentui/svg-icons/icons/settings_20_regular.svg?raw";
+import i_dark_theme from "@fluentui/svg-icons/icons/dark_theme_20_regular.svg?raw";
 import i_apps from "@fluentui/svg-icons/icons/apps_20_regular.svg?raw";
 import i_arrow_clockwise from "@fluentui/svg-icons/icons/arrow_clockwise_20_regular.svg?raw";
 import i_arrow_left from "@fluentui/svg-icons/icons/arrow_left_20_regular.svg?raw";
@@ -50,6 +53,9 @@ import i_zoom_out from "@fluentui/svg-icons/icons/zoom_out_20_regular.svg?raw";
  * Material Symbols names the rest of the app was written with.
  */
 const ICONS: Record<string, string> = {
+  palette: i_dark_theme,
+  settings: i_settings,
+  menu: i_navigation,
   album: i_record,
   app_registration: i_database,
   apps: i_apps,

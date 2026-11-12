@@ -42,6 +42,24 @@ fn restart_as_admin(app: tauri::AppHandle) -> Result<(), String> {
     Ok(())
 }
 
+/// Show a program's folder in Explorer; for a file, open its folder with the
+/// file selected.
+#[tauri::command]
+fn open_location(path: String) -> Result<(), String> {
+    use std::os::windows::process::CommandExt;
+    let p = std::path::Path::new(path.trim().trim_matches('"'));
+    let mut cmd = std::process::Command::new("explorer.exe");
+    if p.is_dir() {
+        cmd.arg(p);
+    } else if p.is_file() {
+        // raw_arg keeps the quotes exactly as Explorer expects them.
+        cmd.raw_arg(format!("/select,\"{}\"", p.display()));
+    } else {
+        return Err("path not found".into());
+    }
+    cmd.spawn().map(|_| ()).map_err(|e| e.to_string())
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -62,6 +80,7 @@ pub fn run() {
             is_elevated,
             restart_as_admin,
             look::system_look,
+            open_location,
             apps::list_win32_apps,
             apps::list_store_apps,
             icons::get_icon,

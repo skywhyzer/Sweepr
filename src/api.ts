@@ -16,6 +16,7 @@ import type {
 export const api = {
   isElevated: () => invoke<boolean>("is_elevated"),
   restartAsAdmin: () => invoke<void>("restart_as_admin"),
+  openLocation: (path: string) => invoke<void>("open_location", { path }),
   listWin32: () => invoke<AppInfo[]>("list_win32_apps"),
   listStore: () => invoke<AppInfo[]>("list_store_apps"),
   getIcon: (path: string) => invoke<string | null>("get_icon", { path }),

@@ -23,6 +23,7 @@
   --surface-2: #ffffff;
   --surface-3: rgba(0, 0, 0, 0.0578);
   --flyout: #f9f9f9;
+  --layer: rgba(255, 255, 255, 0.5);
   --dialog-footer: #f3f3f3;
 
   --text: #1b1b1b;
@@ -79,6 +80,7 @@
   --surface-2: #2b2b2b;
   --surface-3: rgba(255, 255, 255, 0.0837);
   --flyout: #2c2c2c;
+  --layer: rgba(58, 58, 58, 0.3);
   --dialog-footer: #202020;
 
   --text: #ffffff;
@@ -204,14 +206,6 @@ img {
 .shell {
   height: 100%;
   display: flex;
-  flex-direction: column;
-}
-
-.topbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px 8px 16px;
 }
 
 .search {
@@ -266,12 +260,6 @@ img {
   height: 24px;
 }
 
-.actions {
-  display: flex;
-  gap: 2px;
-  flex: none;
-}
-
 /* Fluent InfoBar */
 .banner {
   margin: 0 16px 8px;
@@ -302,51 +290,6 @@ img {
   padding: 4px 16px 8px;
 }
 
-.chips {
-  display: flex;
-  gap: 4px;
-}
-
-/* Filter toggles: Fluent toggle buttons. */
-.chip {
-  height: 32px;
-  padding: 0 12px;
-  border-radius: var(--radius);
-  border: 1px solid var(--control-stroke);
-  border-bottom-color: var(--control-stroke-bottom);
-  background: var(--control);
-  color: var(--text);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: background 0.083s;
-}
-
-.chip:hover {
-  background: var(--control-hover);
-}
-
-.chip:active {
-  background: var(--control-press);
-  color: var(--text-2);
-}
-
-.chip.selected {
-  background: var(--primary);
-  color: var(--on-primary);
-  border-color: rgba(255, 255, 255, 0.08);
-  border-bottom-color: rgba(0, 0, 0, 0.4);
-  padding-left: 10px;
-}
-
-.chip.selected:hover {
-  background: color-mix(in srgb, var(--primary) 90%, transparent);
-}
-
-.chip .icon {
-  font-size: 16px;
-}
-
 .summary {
   display: flex;
   align-items: center;
@@ -357,7 +300,7 @@ img {
 }
 
 /* Fluent ComboBox */
-.summary select {
+.combo {
   height: 32px;
   min-width: 140px;
   padding: 0 32px 0 11px;
@@ -373,58 +316,24 @@ img {
   outline: 0;
 }
 
-.summary select:hover {
+.combo:hover {
   background-color: var(--control-hover);
 }
 
-.summary select:focus-visible {
+.combo:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 1px;
 }
 
-.summary option {
+.combo option {
   background: var(--flyout);
   color: var(--text);
 }
 
 /* -------------------------------------------------------------- list */
 
-.list {
-  flex: 1;
-  overflow-y: auto;
-  margin: 0 4px 0 16px;
-  padding: 0 8px 12px 0;
-  scrollbar-gutter: stable;
-}
 
 
-
-.row {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  height: 64px;
-  margin-bottom: 4px;
-  padding: 0 12px 0 16px;
-  border-radius: var(--radius);
-  border: 1px solid var(--stroke);
-  background: var(--card);
-  content-visibility: auto;
-  contain-intrinsic-size: auto 64px;
-  transition: background 0.083s;
-}
-
-.row:hover,
-.row.menu-open {
-  background: var(--card-hover);
-}
-
-
-.row.menu-open {
-  content-visibility: visible;
-  z-index: 2;
-}
 
 .app-icon {
   width: 32px;
@@ -469,55 +378,8 @@ img {
   text-overflow: ellipsis;
 }
 
-.row-meta {
-  width: 120px;
-  flex: none;
-  text-align: right;
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--text-2);
-  display: flex;
-  flex-direction: column;
-  font-variant-numeric: tabular-nums;
-}
-
 .dim {
   color: var(--text-3);
-}
-
-.row-actions {
-  width: 156px;
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
-}
-
-/* The uninstall button is always there, drawn as a subtle button until the
-   row is hovered. */
-.row .btn.tonal {
-  background: transparent;
-  border-color: transparent;
-  color: var(--text-2);
-}
-
-.row .icon-btn {
-  color: var(--text-3);
-}
-
-.row:hover .btn.tonal,
-.row.menu-open .btn.tonal,
-.row .btn.tonal:focus-visible {
-  background: var(--control);
-  border-color: var(--control-stroke);
-  border-bottom-color: var(--control-stroke-bottom);
-  color: var(--text);
-}
-
-.row:hover .icon-btn,
-.row.menu-open .icon-btn {
-  color: var(--text-2);
 }
 
 .spacer {
@@ -826,10 +688,6 @@ img {
   color: var(--primary);
 }
 
-.row .btn {
-  min-width: 0;
-}
-
 /* Subtle icon button, as in WinUI command bars */
 .icon-btn {
   width: 36px;
@@ -864,10 +722,6 @@ img {
 
 .icon-btn.small .icon {
   font-size: 16px;
-}
-
-.menu-anchor {
-  position: relative;
 }
 
 /* Fluent MenuFlyout */
@@ -1373,7 +1227,7 @@ input[type="checkbox"]:disabled {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 0 16px 12px 20px;
+  padding: 12px 16px 16px 24px;
 }
 
 .disk-bar {
@@ -1817,8 +1671,7 @@ input[type="checkbox"]:disabled {
 }
 
 @media (max-width: 860px) {
-  .c-files,
-  .seg.views .icon {
+  .c-files {
     display: none;
   }
   .c-share {
@@ -1901,11 +1754,6 @@ input[type="checkbox"]:disabled {
   }
 }
 
-@media (max-width: 860px) {
-  .row-meta {
-    display: none;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   * {
@@ -1919,7 +1767,8 @@ input[type="checkbox"]:disabled {
 
 /* ---- Tweaks ---- */
 .tweak-cat {
-  padding: 16px 8px 6px;
+  margin: 0;
+  padding: 20px 0 8px;
   font-size: 14px;
   font-weight: 600;
   color: var(--text);
@@ -2043,4 +1892,504 @@ input[type="checkbox"]:disabled {
 
 .switch:disabled {
   opacity: 0.45;
+}
+
+/* ======================================================= navigation */
+
+/* Fluent NavigationView: the pane sits on Mica, pages on a lighter layer. */
+.nav {
+  flex: none;
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 4px 8px;
+  overflow: hidden;
+  transition: width 0.2s var(--ease);
+}
+
+.nav-collapsed .nav {
+  width: 48px;
+}
+
+.nav-item {
+  position: relative;
+  flex: none;
+  width: 100%;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--text);
+  text-align: left;
+  white-space: nowrap;
+  transition: background 0.083s;
+}
+
+.nav-item .icon {
+  font-size: 16px;
+}
+
+.nav-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.12s;
+}
+
+.nav-item:hover {
+  background: var(--hover);
+}
+
+.nav-item:active {
+  background: var(--press);
+  color: var(--text-2);
+}
+
+.nav-item.on {
+  background: var(--hover);
+}
+
+.nav-item.on:hover {
+  background: var(--surface-3);
+}
+
+/* Selection indicator: the accent pill on the left edge */
+.nav-item.on::before,
+.app-row.sel::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 16px;
+  margin-top: -8px;
+  border-radius: 2px;
+  background: var(--primary);
+  animation: pill-v 0.25s var(--ease);
+}
+
+.nav-toggle {
+  width: 40px;
+  margin-bottom: 4px;
+}
+
+.nav-collapsed .nav-item {
+  width: 40px;
+}
+
+.nav-collapsed .nav-label {
+  opacity: 0;
+}
+
+@keyframes pill-v {
+  from {
+    transform: scaleY(0.3);
+  }
+}
+
+/* Narrow windows get the compact pane, as NavigationView does. */
+@media (max-width: 900px) {
+  .nav {
+    width: 48px;
+  }
+  .nav .nav-item {
+    width: 40px;
+  }
+  .nav-label {
+    opacity: 0;
+  }
+  .nav-toggle {
+    visibility: hidden;
+  }
+}
+
+.content {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--layer);
+  border: 1px solid var(--stroke);
+  border-right: 0;
+  border-bottom: 0;
+  border-top-left-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* ============================================================ pages */
+
+.page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  animation: page 0.25s var(--ease);
+}
+
+@keyframes page {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+.page-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 32px 16px;
+}
+
+.page-head h1 {
+  flex: none;
+  margin: 0;
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 600;
+}
+
+.page-head > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.page-head p {
+  margin: 4px 0 0;
+  color: var(--text-2);
+}
+
+.page-head .search {
+  margin: 0 0 0 auto;
+  max-width: 360px;
+}
+
+.page-banner {
+  margin: 0 32px 12px;
+}
+
+.page-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 32px 24px;
+}
+
+/* Command bar above the list */
+.commandbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 32px 12px;
+}
+
+.commandbar .summary {
+  margin-right: 4px;
+}
+
+.cmd {
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  transition: background 0.083s;
+}
+
+.cmd .icon {
+  font-size: 16px;
+}
+
+.cmd:hover {
+  background: var(--hover);
+}
+
+.cmd:active {
+  background: var(--press);
+  color: var(--text-2);
+}
+
+/* Settings-style cards (Windows Settings) */
+.settings {
+  max-width: 1000px;
+}
+
+.settings > .tweak-cat:first-child,
+.settings > section:first-child > .tweak-cat {
+  padding-top: 0;
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 68px;
+  margin-bottom: 4px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--stroke);
+  background: var(--card);
+}
+
+.card-row.tweak:hover,
+.card-row.backup:hover {
+  background: var(--card);
+}
+
+.card-row.backup {
+  display: block;
+  min-height: 0;
+  padding: 12px 16px 12px 8px;
+}
+
+.card-icon {
+  color: var(--text);
+}
+
+.card-logo {
+  width: 32px;
+  height: 32px;
+  flex: none;
+}
+
+.card-row .combo {
+  min-width: 200px;
+}
+
+/* ======================================================= program list */
+
+.apps-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 12px;
+  padding: 0 16px 16px 28px;
+}
+
+.app-list {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  outline: 0;
+  padding-right: 4px;
+  container-type: inline-size;
+}
+
+/* Fluent ListView item */
+.app-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  margin-bottom: 2px;
+  padding: 0 12px;
+  border-radius: var(--radius);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 52px;
+  transition: background 0.083s;
+}
+
+.app-row:hover,
+.app-row.sel {
+  background: var(--hover);
+}
+
+.app-row.sel:hover {
+  background: var(--surface-3);
+}
+
+.app-list:focus-visible .app-row.sel {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.col-size,
+.col-date {
+  flex: none;
+  text-align: right;
+  font-size: 12px;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.col-size {
+  width: 72px;
+}
+
+.col-date {
+  width: 110px;
+}
+
+@container (max-width: 520px) {
+  .col-date {
+    display: none;
+  }
+}
+
+@container (max-width: 340px) {
+  .col-size {
+    display: none;
+  }
+}
+
+/* ===================================================== details pane */
+
+.details {
+  flex: none;
+  width: 320px;
+  overflow-y: auto;
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--stroke);
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+}
+
+.details > .state {
+  text-align: center;
+}
+
+.details-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: fade 0.2s;
+}
+
+.details-head .app-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.details-head .avatar {
+  font-size: 22px;
+}
+
+.details-title {
+  min-width: 0;
+}
+
+.details-title h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  user-select: text;
+}
+
+.details-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0 10px;
+}
+
+.details-actions .btn {
+  flex: 1 0 auto;
+  justify-content: center;
+}
+
+.props {
+  margin: 0;
+}
+
+.prop {
+  padding: 10px 0;
+  border-top: 1px solid var(--divider);
+}
+
+.prop dt {
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.prop dt .icon-btn.small {
+  width: 24px;
+  height: 24px;
+  margin: -2px -4px -2px 0;
+  color: var(--text-2);
+}
+
+.prop dd {
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+.prop dd + dd {
+  margin-top: 6px;
+}
+
+/* Hyperlink button */
+.link {
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.link .icon {
+  font-size: 16px;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.link:active {
+  opacity: 0.8;
+}
+
+/* Context menu at the pointer */
+.menu.context {
+  position: fixed;
+  right: auto;
+  min-width: 240px;
+  z-index: 20;
+}
+
+.menu-sep {
+  height: 1px;
+  margin: 4px 0;
+  background: var(--divider);
+}
+
+@media (max-width: 1060px) {
+  .details {
+    width: 280px;
+  }
+  .commandbar .summary {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .cmd span {
+    display: none;
+  }
 }

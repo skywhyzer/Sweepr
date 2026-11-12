@@ -7,7 +7,7 @@ import { Icon, Spinner } from "./ui";
 type Status = "busy" | "restored" | "failed";
 
 /** Lists registry backups made during uninstalls and restores them on request. */
-export default function BackupsDialog({ onClose }: { onClose: () => void }) {
+export default function BackupsPage() {
   const { t, lang } = useI18n();
   const [list, setList] = useState<BackupInfo[] | null>(null);
   const [status, setStatus] = useState<Record<string, Status>>({});
@@ -36,11 +36,18 @@ export default function BackupsDialog({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="scrim" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="dialog wide" role="dialog" aria-modal="true">
-        <h2>{t("backups")}</h2>
-        <p>{t("backupsText")}</p>
+    <div className="page">
+      <header className="page-head">
+        <div>
+          <h1>{t("backups")}</h1>
+          <p>{t("backupsText")}</p>
+        </div>
+        <button className="icon-btn" title={t("refresh")} onClick={load}>
+          <Icon name="refresh" />
+        </button>
+      </header>
 
+      <div className="page-scroll">
         {list === null ? (
           <div className="progress">
             <Spinner />
@@ -51,9 +58,9 @@ export default function BackupsDialog({ onClose }: { onClose: () => void }) {
             <p>{t("backupsEmpty")}</p>
           </div>
         ) : (
-          <div className="leftovers tall">
+          <div className="settings">
             {list.map((b) => (
-              <div key={b.id} className="backup">
+              <div key={b.id} className="card-row backup">
                 <div className="backup-row">
                   <button
                     className="icon-btn small"
@@ -113,12 +120,6 @@ export default function BackupsDialog({ onClose }: { onClose: () => void }) {
             ))}
           </div>
         )}
-
-        <div className="dialog-actions">
-          <button className="btn filled" onClick={onClose}>
-            {t("close")}
-          </button>
-        </div>
       </div>
     </div>
   );

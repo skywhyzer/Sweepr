@@ -7,13 +7,7 @@ import { Icon, Spinner } from "./ui";
 const CATEGORIES: TweakInfo["category"][] = ["interface", "privacy", "gaming", "updates"];
 
 /** Toggles for system settings; every change can be undone, even after a restart. */
-export default function TweaksDialog({
-  elevated,
-  onClose,
-}: {
-  elevated: boolean;
-  onClose: () => void;
-}) {
+export default function TweaksPage({ elevated }: { elevated: boolean }) {
   const { t } = useI18n();
   const [list, setList] = useState<TweakInfo[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -69,11 +63,19 @@ export default function TweaksDialog({
   const managed = list?.filter((x) => x.managed).length ?? 0;
 
   return (
-    <div className="scrim" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="dialog wide" role="dialog" aria-modal="true">
-        <h2>{t("tweaks")}</h2>
-        <p>{t("tweaksText")}</p>
+    <div className="page">
+      <header className="page-head">
+        <div>
+          <h1>{t("tweaks")}</h1>
+          <p>{t("tweaksText")}</p>
+        </div>
+        <button className="btn" disabled={busy !== null || managed === 0} onClick={resetAll}>
+          <Icon name="undo" />
+          {t("tweaksReset")}
+        </button>
+      </header>
 
+      <div className="page-scroll">
         {explorerPending && (
           <div className="banner inline">
             <Icon name="info" />
@@ -90,18 +92,18 @@ export default function TweaksDialog({
             <Spinner />
           </div>
         ) : (
-          <div className="leftovers tall">
+          <div className="settings">
             {CATEGORIES.map((cat) => {
               const items = list.filter((x) => x.category === cat);
               if (items.length === 0) return null;
               return (
                 <section key={cat}>
-                  <div className="tweak-cat">{t(`cat_${cat}` as Key)}</div>
+                  <h3 className="tweak-cat">{t(`cat_${cat}` as Key)}</h3>
                   {items.map((tw) => {
                     const locked = tw.admin && !elevated;
                     const title = t(`tw_${tw.id}` as Key);
                     return (
-                      <div className="tweak" key={tw.id}>
+                      <div className="card-row tweak" key={tw.id}>
                         <div className="tweak-main">
                           <div className="row-name">{title}</div>
                           <div className="row-sub wrap">{t(`tw_${tw.id}_d` as Key)}</div>
@@ -169,14 +171,6 @@ export default function TweaksDialog({
           </div>
         )}
 
-        <div className="dialog-actions">
-          <button className="btn text" disabled={busy !== null || managed === 0} onClick={resetAll}>
-            {t("tweaksReset")}
-          </button>
-          <button className="btn filled" onClick={onClose}>
-            {t("close")}
-          </button>
-        </div>
       </div>
     </div>
   );
