@@ -56,7 +56,7 @@ pub struct Progress {
 impl Progress {
     fn try_worker(&self) -> bool {
         self.workers
-            .fetch_update(Ordering::AcqRel, Ordering::Acquire, |w| {
+            .try_update(Ordering::AcqRel, Ordering::Acquire, |w| {
                 (w < MAX_WORKERS).then_some(w + 1)
             })
             .is_ok()

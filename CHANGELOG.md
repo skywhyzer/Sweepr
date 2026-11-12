@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.0
 
 ### New: startup, clean-up, recovery and program updates
 

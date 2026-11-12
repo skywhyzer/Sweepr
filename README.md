@@ -4,7 +4,7 @@
 
 # Sweepr
 
-**Fast, modern uninstaller for Windows — removes programs *and* everything they leave behind.**
+**A toolkit for Windows: removes programs *and* everything they leave behind, cleans the system, manages startup and helps fix the PC when something goes wrong.**
 
 English · [Русский](README.ru.md)
 
@@ -16,27 +16,55 @@ English · [Русский](README.ru.md)
 
 </div>
 
-## Features
+## What Sweepr does
 
-- **One list for everything** — classic Win32 programs and Microsoft Store apps, with icons, publisher, version, size and install date.
-- **Clean uninstall** — runs the program's own uninstaller first, then scans for leftover files, folders and registry entries.
-- **Nothing is deleted blindly** — every leftover is shown with the reason it was found, and you confirm before anything is removed.
-- **Force removal** — for broken or missing uninstallers: skips the uninstaller and removes all traces directly.
-- **Registry backups** — a backup is made before registry cleanup, and you can restore it any time from the built-in backups manager.
-- **Tweaks** — 40 reversible system tweaks across interface, privacy, gaming, updates and security: disable Windows Update, SmartScreen or UAC, remove shortcut arrows, turn on dark mode, block telemetry and location, stop promoted apps, and more. The previous value is saved before every change, high-risk tweaks ask for confirmation, and you can undo one or all of them in a click, even after a restart; Sweepr also notices when Windows reverts a tweak. (Microsoft Defender can't be toggled from the registry — Tamper Protection blocks it — so Sweepr says so instead of offering a switch that wouldn't work.)
-- **Program updates** — when winget is installed, Sweepr shows which programs have a newer version and updates one or all of them.
-- **Startup manager** — Run keys, the Startup folder, scheduled tasks that run at sign-in and third-party services in one list, with publisher and command line. Switching an item off deletes nothing (the same flags Task Manager uses; services move to manual start), and entries whose program is gone are flagged and can be removed with a backup.
-- **Clean-up** — temporary files, Windows Update and Delivery Optimization caches, crash dumps, error reports, shader and browser caches, the Recycle Bin, with the size of each before anything is removed. Only things Windows and programs recreate are touched.
-- **Leftovers of removed programs** — finds folders and registry keys of programs that are already gone (uninstalled badly or by another tool): nothing installed matches them and they haven't changed for 30 days. Every item is for you to review; folders go to the Recycle Bin, keys to a backup.
-- **Recovery** — restore points (Sweepr creates one before uninstalling a program or applying a high-risk tweak), registry backups, and a repair kit: system file check (sfc), Windows image repair (DISM), network and Windows Update reset, DNS flush, icon cache rebuild, Explorer restart.
-- **Disk usage analyzer (new in 0.2)** — a WinDirStat-style view: scan a drive or folder and see what takes up space as a sortable folder tree with share bars, a colored treemap (squarified, with cushion shading and zoom) and statistics by file type. Largest files list, open / show in Explorer, move to the Recycle Bin or delete permanently right from the view.
-- **Explorer-style program list** — a details pane with version, size, install date, location, uninstall command and registry key (copy or open in Explorer); right-click menu; full keyboard control: arrows, type-ahead, `Enter` / `Delete` to uninstall, `Ctrl+F` / `F3` for search.
-- **Instant search, filters and sorting** — by name, size or date.
-- **Looks like Windows 11** — Fluent design with a Mica window backdrop, your Windows accent colour, Segoe UI and Fluent icons; light and dark themes.
-- **English and Russian** interface.
-- Small, native-feeling app powered by Tauri — no bundled browser.
+A navigation pane on the left: **Programs · Startup · Clean-up · Disk · Tweaks · Recovery**, with **Settings** at the bottom.
+
+### Programs
+
+- One list for classic Win32 programs and Microsoft Store apps: icon, publisher, version, size, install date.
+- **Clean uninstall.** The program's own uninstaller runs first, then Sweepr scans for leftover files, folders and registry entries. Every leftover is shown with the reason it was found and removed only after you confirm.
+- **Force removal** for broken or missing uninstallers: skips the uninstaller and removes the traces directly.
+- **Updates through winget.** If winget is installed, the list shows which programs have a newer version; update one program or all of them.
+- **Works like File Explorer.** Details pane (version, size, location, uninstall command, registry key), context menu, full keyboard control: arrows, type-ahead, `Enter` / `Delete` to uninstall, `Ctrl+F` / `F3` to search.
+- Instant search, filters and sorting by name, size or date.
+
+### Startup
+
+- Everything that runs with Windows in one list: Run keys, the Startup folder, sign-in scheduled tasks and third-party services, with publisher and command line.
+- **Turning an item off never deletes it.** It uses the same flags as Task Manager, and services move to manual start. You can turn it back on any time.
+- Entries whose program no longer exists are flagged and can be removed with a backup.
+
+### Clean-up
+
+- **Junk files.** Ten categories: temporary files, Windows Update and Delivery Optimization caches, crash dumps, error reports, shader cache, browser caches, Recycle Bin and more. The size of each category is shown before anything is removed. Only things Windows and programs recreate are touched.
+- **Leftovers of removed programs.** Folders and registry keys that match no installed program, aren't used by startup entries or services and haven't changed for 30 days. Nothing is preselected; folders go to the Recycle Bin, keys to a registry backup.
+
+### Disk
+
+A WinDirStat-style usage analyzer: scan a drive or folder and see a folder tree with share bars, a colored treemap (with zoom) and statistics by file type. Largest files list, open or show in Explorer, move to the Recycle Bin or delete permanently right from the view.
+
+### Tweaks
+
+- 40 reversible settings in five groups: interface, privacy, gaming, updates and security.
+- Examples: disable Windows Update, SmartScreen and UAC, remove shortcut arrows, dark mode, block telemetry and location, stop promoted app installs.
+- The previous value is saved before every change. Undo one tweak or all of them in a click, even after a restart. If Windows reverts a setting, Sweepr notices.
+- High-risk tweaks are marked red and ask for confirmation.
+- Microsoft Defender can't be switched off through the registry because of Tamper Protection, so Sweepr explains how to do it in Windows Security instead of showing a toggle that does nothing.
+
+### Recovery
+
+- **Restore points:** list, create, turn System Protection on, open the System Restore wizard. Sweepr creates one automatically before uninstalling a program and before a high-risk tweak (on by default, can be turned off in Settings; needs administrator rights).
+- **Registry backups.** A backup is made before every registry clean-up, and you can restore it any time.
+- **Repair:** system file check (`sfc`), image repair (`DISM`), component store clean-up, network reset, Windows Update reset (folders are renamed, not deleted), DNS flush, icon cache rebuild, Explorer restart.
+
+### Look and feel
+
+Looks like part of Windows 11: Fluent design, Mica backdrop, your system accent colour, Segoe UI Variable. Light and dark themes (or follow Windows), English and Russian interface. A small app powered by Tauri, with no bundled browser.
 
 ## Screenshots
+
+> The screenshots below were taken in earlier versions and will be refreshed.
 
 | 1. Confirm | 2. Leftovers found | 3. Done |
 |---|---|---|
@@ -48,7 +76,7 @@ English · [Русский](README.ru.md)
 
 Download the latest `Sweepr_x.y.z_x64-setup.exe` from the [Releases](https://github.com/skywhyzer/Sweepr/releases) page and run it.
 
-> Some programs can only be removed with administrator rights. Run Sweepr as administrator if an uninstall fails with an access error.
+> Some features need administrator rights: removing certain programs, system-level tweaks, restore points, repair. If something fails with an access error, run Sweepr as administrator.
 
 ## Build from source
 
